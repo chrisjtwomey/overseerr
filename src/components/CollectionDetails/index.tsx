@@ -210,7 +210,7 @@ const CollectionDetails = ({ collection }: CollectionDetailsProps) => {
       )}
       <PageTitle title={data.name} />
       <RequestModal
-        tmdbId={data.id}
+        mediaId={data.id}
         show={requestModal}
         type="collection"
         is4k={is4k}
@@ -225,7 +225,7 @@ const CollectionDetails = ({ collection }: CollectionDetailsProps) => {
           <CachedImage
             src={
               data.posterPath
-                ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${data.posterPath}`
+                ? `${data.posterPath}`
                 : '/images/overseerr_poster_not_found.png'
             }
             alt=""

@@ -3,6 +3,7 @@ import ConfirmButton from '@app/components/Common/ConfirmButton';
 import LoadingSpinner from '@app/components/Common/LoadingSpinner';
 import PageTitle from '@app/components/Common/PageTitle';
 import Tooltip from '@app/components/Common/Tooltip';
+import BookGenreSlider from '@app/components/Discover/BookGenreSlider';
 import { sliderTitles } from '@app/components/Discover/constants';
 import CreateSlider from '@app/components/Discover/CreateSlider';
 import DiscoverSliderEdit from '@app/components/Discover/DiscoverSliderEdit';
@@ -394,6 +395,40 @@ const Discover = () => {
                 }&watchProviders=${slider.data?.split(',')[1]}`}
               />
             );
+            break;
+          case DiscoverSliderType.TRENDING_BOOKS:
+            sliderComponent = (
+              <MediaSlider
+                sliderKey="trending-books"
+                title={intl.formatMessage(sliderTitles.trendingbooks)}
+                url="/api/v1/discover/books/trending"
+                linkUrl="/discover/books/trending"
+              />
+            );
+            break;
+          case DiscoverSliderType.POPULAR_BOOKS:
+            sliderComponent = (
+              <MediaSlider
+                sliderKey="popular-books"
+                title={intl.formatMessage(sliderTitles.popularbooks)}
+                url="/api/v1/discover/books"
+                linkUrl="/discover/books"
+              />
+            );
+            break;
+          case DiscoverSliderType.UPCOMING_BOOKS:
+            sliderComponent = (
+              <MediaSlider
+                sliderKey="upcoming-books"
+                title={intl.formatMessage(sliderTitles.upcomingbooks)}
+                url="/api/v1/discover/books"
+                linkUrl={`/discover/books?releaseDateGte=${upcomingDate}`}
+                extraParams={`releaseDateGte=${upcomingDate}`}
+              />
+            );
+            break;
+          case DiscoverSliderType.BOOK_GENRES:
+            sliderComponent = <BookGenreSlider />;
             break;
         }
 

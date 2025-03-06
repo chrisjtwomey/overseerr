@@ -58,6 +58,7 @@ const globalMessages = defineMessages({
   open: 'Open',
   resolved: 'Resolved',
   specials: 'Specials',
+  book: 'Book',
 });
 
 export default globalMessages;

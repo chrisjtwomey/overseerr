@@ -75,7 +75,9 @@ const TitleCard = ({
       Permission.REQUEST,
       mediaType === 'movie' || mediaType === 'collection'
         ? Permission.REQUEST_MOVIE
-        : Permission.REQUEST_TV,
+        : mediaType === 'tv'
+        ? Permission.REQUEST_TV
+        : Permission.REQUEST_BOOK,
     ],
     { type: 'or' }
   );
@@ -86,14 +88,16 @@ const TitleCard = ({
       data-testid="title-card"
     >
       <RequestModal
-        tmdbId={id}
+        mediaId={id}
         show={showRequestModal}
         type={
           mediaType === 'movie'
             ? 'movie'
             : mediaType === 'collection'
             ? 'collection'
-            : 'tv'
+            : mediaType === 'tv'
+            ? 'tv'
+            : 'book'
         }
         onComplete={requestComplete}
         onUpdating={requestUpdating}
@@ -129,7 +133,7 @@ const TitleCard = ({
             alt=""
             src={
               image
-                ? `https://image.tmdb.org/t/p/w300_and_h450_face${image}`
+                ? `${image}`
                 : `/images/overseerr_poster_not_found_logo_top.png`
             }
             layout="fill"
@@ -140,7 +144,9 @@ const TitleCard = ({
               className={`pointer-events-none z-40 rounded-full border bg-opacity-80 shadow-md ${
                 mediaType === 'movie' || mediaType === 'collection'
                   ? 'border-blue-500 bg-blue-600'
-                  : 'border-purple-600 bg-purple-600'
+                  : mediaType === 'tv'
+                  ? 'border-purple-600 bg-purple-600'
+                  : 'border-red-500 bg-red-600'
               }`}
             >
               <div className="flex h-4 items-center px-2 py-2 text-center text-xs font-medium uppercase tracking-wider text-white sm:h-5">
@@ -148,7 +154,9 @@ const TitleCard = ({
                   ? intl.formatMessage(globalMessages.movie)
                   : mediaType === 'collection'
                   ? intl.formatMessage(globalMessages.collection)
-                  : intl.formatMessage(globalMessages.tvshow)}
+                  : mediaType === 'tv'
+                  ? intl.formatMessage(globalMessages.tvshow)
+                  : intl.formatMessage(globalMessages.book)}
               </div>
             </div>
             {currentStatus && currentStatus !== MediaStatus.UNKNOWN && (
@@ -193,7 +201,9 @@ const TitleCard = ({
                     ? `/movie/${id}`
                     : mediaType === 'collection'
                     ? `/collection/${id}`
-                    : `/tv/${id}`
+                    : mediaType === 'tv'
+                    ? `/tv/${id}`
+                    : `/book/${id}`
                 }
               >
                 <a

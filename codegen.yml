@@ -1,0 +1,10 @@
+overwrite: true
+schema:
+  - 'https://api.hardcover.app/v1/graphql':
+      headers: { Authorization: '' }
+documents: './server/**/*.graphql'
+generates:
+  ./server/api/hardcover/graphql/:
+    preset: 'client'
+    presetConfig:
+      fragmentMasking: false

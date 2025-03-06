@@ -6,6 +6,7 @@ import useSettings from '@app/hooks/useSettings';
 import { ArrowRightCircleIcon } from '@heroicons/react/24/outline';
 import { MediaStatus } from '@server/constants/media';
 import type {
+  BookResult,
   MovieResult,
   PersonResult,
   TvResult,
@@ -18,7 +19,7 @@ interface MixedResult {
   page: number;
   totalResults: number;
   totalPages: number;
-  results: (TvResult | MovieResult | PersonResult)[];
+  results: (TvResult | MovieResult | PersonResult | BookResult)[];
 }
 
 interface MediaSliderProps {
@@ -58,13 +59,15 @@ const MediaSlider = ({
 
   let titles = (data ?? []).reduce(
     (a, v) => [...a, ...v.results],
-    [] as (MovieResult | TvResult | PersonResult)[]
+    [] as (MovieResult | TvResult | PersonResult | BookResult)[]
   );
 
   if (settings.currentSettings.hideAvailable) {
     titles = titles.filter(
       (i) =>
-        (i.mediaType === 'movie' || i.mediaType === 'tv') &&
+        (i.mediaType === 'movie' ||
+          i.mediaType === 'tv' ||
+          i.mediaType === 'book') &&
         i.mediaInfo?.status !== MediaStatus.AVAILABLE &&
         i.mediaInfo?.status !== MediaStatus.PARTIALLY_AVAILABLE
     );
@@ -116,6 +119,20 @@ const MediaSlider = ({
             title={title.name}
             userScore={title.voteAverage}
             year={title.firstAirDate}
+            mediaType={title.mediaType}
+            inProgress={(title.mediaInfo?.downloadStatus ?? []).length > 0}
+          />
+        );
+      case 'book':
+        return (
+          <TitleCard
+            id={title.id}
+            image={title.posterPath}
+            status={title.mediaInfo?.status}
+            summary={title.overview}
+            title={title.title}
+            userScore={title.voteAverage}
+            year={title.releaseDate}
             mediaType={title.mediaType}
             inProgress={(title.mediaInfo?.downloadStatus ?? []).length > 0}
           />

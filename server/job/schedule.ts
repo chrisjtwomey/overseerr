@@ -2,6 +2,11 @@ import availabilitySync from '@server/lib/availabilitySync';
 import downloadTracker from '@server/lib/downloadtracker';
 import ImageProxy from '@server/lib/imageproxy';
 import refreshToken from '@server/lib/refreshToken';
+import {
+  calibreWebFullScanner,
+  calibreWebRecentScanner,
+} from '@server/lib/scanners/calibre';
+import { hardcoverCacheSync } from '@server/lib/scanners/hardcover';
 import { plexFullScanner, plexRecentScanner } from '@server/lib/scanners/plex';
 import { radarrScanner } from '@server/lib/scanners/radarr';
 import { sonarrScanner } from '@server/lib/scanners/sonarr';
@@ -74,6 +79,41 @@ export const startJobs = (): void => {
       });
       watchlistSync.syncWatchlist();
     }),
+  });
+
+  scheduledJobs.push({
+    id: 'calibre-full-scan',
+    name: 'Calibre Full Library Scan',
+    type: 'process',
+    interval: 'hours',
+    cronSchedule: jobs['calibre-full-scan'].schedule,
+    job: schedule.scheduleJob(jobs['calibre-full-scan'].schedule, () => {
+      logger.info('Starting scheduled job: Calibre Full Library Scan', {
+        label: 'Jobs',
+      });
+      calibreWebFullScanner.run();
+    }),
+    running: () => calibreWebFullScanner.status().running,
+    cancelFn: () => calibreWebFullScanner.cancel(),
+  });
+
+  scheduledJobs.push({
+    id: 'calibre-recently-added-scan',
+    name: 'Calibre Recently Added Scan',
+    type: 'process',
+    interval: 'minutes',
+    cronSchedule: jobs['calibre-recently-added-scan'].schedule,
+    job: schedule.scheduleJob(
+      jobs['calibre-recently-added-scan'].schedule,
+      () => {
+        logger.info('Starting scheduled job: Calibre Recently Added Scan', {
+          label: 'Jobs',
+        });
+        calibreWebRecentScanner.run();
+      }
+    ),
+    running: () => calibreWebRecentScanner.status().running,
+    cancelFn: () => calibreWebRecentScanner.cancel(),
   });
 
   // Run full radarr scan every 24 hours
@@ -167,6 +207,22 @@ export const startJobs = (): void => {
       // Clean TMDB image cache
       ImageProxy.clearCache('tmdb');
     }),
+  });
+
+  scheduledJobs.push({
+    id: 'hardcover-cache-sync',
+    name: 'Hardcover Cache Sync',
+    type: 'process',
+    interval: 'fixed',
+    cronSchedule: jobs['hardcover-cache-sync'].schedule,
+    job: schedule.scheduleJob(jobs['hardcover-cache-sync'].schedule, () => {
+      logger.info('Starting scheduled job: Hardcover Cache Sync', {
+        label: 'Jobs',
+      });
+      hardcoverCacheSync.run();
+    }),
+    running: () => hardcoverCacheSync.status().running,
+    cancelFn: () => hardcoverCacheSync.cancel(),
   });
 
   scheduledJobs.push({

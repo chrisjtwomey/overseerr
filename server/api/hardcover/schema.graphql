@@ -1,0 +1,299 @@
+#############################################
+#--------------- Fragments -----------------#
+#############################################
+
+fragment Author on authors {
+  id
+  alternate_names
+  bio
+  born_date
+  cached_image
+  name
+  death_date
+  location
+  users_count
+  books_count
+}
+
+fragment Tag on tags {
+  __typename
+  id
+  tag
+  slug
+  tag_category {
+    __typename
+    id
+    category
+    slug
+  }
+}
+
+fragment Publisher on publishers {
+  __typename
+  id
+  name
+}
+
+fragment Language on languages {
+  __typename
+  language
+  code2
+}
+
+fragment Edition on editions {
+  __typename
+  id
+  isbn_13
+  isbn_10
+  asin
+  title
+  description
+  pages
+  publisher {
+    ...Publisher
+  }
+  language {
+    ...Language
+  }
+  release_date
+  edition_format
+}
+
+fragment BookPartial on books {
+  __typename
+  id
+  title
+  cached_image
+  default_physical_edition {
+    ...Edition
+  }
+  default_ebook_edition {
+    ...Edition
+  }
+  editions(
+    where: {
+      language: { code2: { _eq: $language } }
+      edition_format: { _nin: ["Audible.com", "Audiobook", "Audible Audio"] }
+    }
+    order_by: { users_count: desc }
+    limit: 1
+  ) {
+    ...Edition
+  }
+  rating
+}
+
+fragment Book on books {
+  __typename
+  ...BookPartial
+  cached_featured_series
+  slug
+  title
+  headline
+  release_date
+  ratings_count
+  cached_contributors
+  cached_tags
+}
+
+fragment Series on series {
+  id
+  name
+  primary_books_count
+  book_series(
+    where: {
+      book: {
+        book_status_id: { _eq: "1" }
+        compilation: { _eq: false }
+        # default_physical_edition: { source: { _is_null: true } }
+      }
+    }
+    order_by: { position: asc }
+    offset: $offset
+    limit: $limit
+  ) {
+    position
+    book {
+      ...BookPartial
+    }
+  }
+}
+
+#############################################
+#---------------- Queries ------------------#
+#############################################
+
+# For verifying graphql connection.
+query GetMe {
+  me {
+    id
+  }
+}
+
+query GetBookByID($bookId: Int!, $language: String!) {
+  books_by_pk(id: $bookId) {
+    ...Book
+  }
+}
+
+query GetBookByEditionID($editionId: Int!, $language: String!) {
+  editions_by_pk(id: $editionId) {
+    ...Edition
+    book {
+      ...Book
+    }
+  }
+}
+
+query GetBookByIdentifier($identifier: String!, $language: String!) {
+  books(
+    where: {
+      _or: [
+        { editions: { isbn_10: { _eq: $identifier } } }
+        { editions: { isbn_13: { _eq: $identifier } } }
+        { editions: { asin: { _eq: $identifier } } }
+      ]
+    }
+    limit: 1
+  ) {
+    ...Book
+  }
+}
+
+query GetBooks(
+  $where: books_bool_exp
+  $language: String!
+  $orderBy: [books_order_by!]!
+  $limit: Int!
+  $offset: Int!
+) {
+  books(where: $where, order_by: $orderBy, limit: $limit, offset: $offset) {
+    ...BookPartial
+  }
+  books_aggregate {
+    aggregate {
+      count
+    }
+  }
+}
+
+query GetBooksByIDs(
+  $bookIds: [Int!]!
+  $language: String!
+  $orderBy: [books_order_by!]
+) {
+  books(where: { id: { _in: $bookIds } }, order_by: $orderBy) {
+    ...BookPartial
+  }
+}
+
+query GetBooksBySeriesID(
+  $seriesId: Int!
+  $language: String!
+  $limit: Int!
+  $offset: Int!
+) {
+  series_by_pk(id: $seriesId) {
+    ...Series
+  }
+}
+
+query GetAuthorByID($authorId: Int!) {
+  authors_by_pk(id: $authorId) {
+    ...Author
+  }
+}
+
+query GetAuthorByIDS($authorIds: [Int!]!) {
+  authors(where: { id: { _in: $authorIds } }) {
+    ...Author
+  }
+}
+
+query GetBooksByAuthorID(
+  $authorId: Int!
+  $language: String!
+  $limit: Int!
+  $offset: Int!
+) {
+  books(
+    where: { contributions: { author_id: { _eq: $authorId } } }
+    order_by: { users_count: desc }
+    limit: $limit
+    offset: $offset
+  ) {
+    ...BookPartial
+  }
+  books_aggregate(where: { contributions: { author_id: { _eq: $authorId } } }) {
+    aggregate {
+      count
+    }
+  }
+}
+
+query GetTrendingBookIDs(
+  $from: date!
+  $to: date!
+  $limit: Int!
+  $offset: Int!
+) {
+  books_trending(from: $from, to: $to, limit: $limit, offset: $offset) {
+    __typename
+    ids
+  }
+}
+
+query GetBookRecommendations(
+  $bookId: bigint!
+  $language: String!
+  $limit: Int
+  $offset: Int
+) {
+  recommendations(
+    limit: $limit
+    offset: $offset
+    where: {
+      subject_id: { _eq: $bookId }
+      subject_type: { _eq: "Book" }
+      item_type: { _eq: "Book" }
+    }
+    order_by: { score: desc, item_book: { rating: desc, users_count: desc } }
+  ) {
+    __typename
+    item_book {
+      ...BookPartial
+    }
+  }
+}
+
+query Search(
+  $query: String!
+  $query_type: String!
+  $per_page: Int!
+  $page: Int!
+) {
+  search(
+    query: $query
+    query_type: $query_type
+    per_page: $per_page
+    page: $page
+  ) {
+    results
+  }
+}
+
+query GetTagsByCategory($categorySlug: String!, $limit: Int!, $offset: Int!) {
+  tags(
+    where: { tag_category: { slug: { _eq: $categorySlug } } }
+    order_by: { count: desc }
+    limit: $limit
+    offset: $offset
+  ) {
+    ...Tag
+  }
+  tags_aggregate {
+    aggregate {
+      count
+    }
+  }
+}

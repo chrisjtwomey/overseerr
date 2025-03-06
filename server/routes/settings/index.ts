@@ -21,7 +21,9 @@ import type { JobId, MainSettings } from '@server/lib/settings';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { isAuthenticated } from '@server/middleware/auth';
+import calibreWebRoutes from '@server/routes/settings/calibreweb';
 import discoverSettingRoutes from '@server/routes/settings/discover';
+import hardcoverRoutes from '@server/routes/settings/hardcover';
 import { appDataPath } from '@server/utils/appDataVolume';
 import { getAppVersion } from '@server/utils/appVersion';
 import { Router } from 'express';
@@ -41,6 +43,8 @@ const settingsRoutes = Router();
 settingsRoutes.use('/notifications', notificationRoutes);
 settingsRoutes.use('/radarr', radarrRoutes);
 settingsRoutes.use('/sonarr', sonarrRoutes);
+settingsRoutes.use('/hardcover', hardcoverRoutes);
+settingsRoutes.use('/calibreweb', calibreWebRoutes);
 settingsRoutes.use('/discover', discoverSettingRoutes);
 
 const filteredMainSettings = (

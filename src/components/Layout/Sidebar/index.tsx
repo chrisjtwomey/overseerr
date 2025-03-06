@@ -4,6 +4,7 @@ import useClickOutside from '@app/hooks/useClickOutside';
 import { Permission, useUser } from '@app/hooks/useUser';
 import { Transition } from '@headlessui/react';
 import {
+  BookOpenIcon,
   ClockIcon,
   CogIcon,
   ExclamationTriangleIcon,
@@ -22,6 +23,7 @@ export const menuMessages = defineMessages({
   dashboard: 'Discover',
   browsemovies: 'Movies',
   browsetv: 'Series',
+  browsebooks: 'Books',
   requests: 'Requests',
   issues: 'Issues',
   users: 'Users',
@@ -66,6 +68,12 @@ const SidebarLinks: SidebarLinkProps[] = [
     messagesKey: 'browsetv',
     svgIcon: <TvIcon className="mr-3 h-6 w-6" />,
     activeRegExp: /^\/discover\/tv$/,
+  },
+  {
+    href: '/discover/books',
+    messagesKey: 'browsebooks',
+    svgIcon: <BookOpenIcon className="mr-3 h-6 w-6" />,
+    activeRegExp: /^\/discover\/books$/,
   },
   {
     href: '/requests',

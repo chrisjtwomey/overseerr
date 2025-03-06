@@ -44,6 +44,29 @@ export interface TautulliSettings {
   externalUrl?: string;
 }
 
+export interface HardcoverSettings {
+  token?: string;
+  lastScan?: number;
+}
+
+export interface CalibreWebSettings {
+  hostname?: string;
+  port?: number;
+  useSsl?: boolean;
+  urlBase?: string;
+  apiKey?: string;
+  externalUrl?: string;
+  lastScan?: number;
+}
+
+export interface CalibreWebDownloaderSettings {
+  hostname?: string;
+  port?: number;
+  useSsl?: boolean;
+  urlBase?: string;
+  externalUrl?: string;
+}
+
 export interface DVRSettings {
   id: number;
   name: string;
@@ -249,6 +272,9 @@ export type JobId =
   | 'plex-full-scan'
   | 'plex-watchlist-sync'
   | 'plex-refresh-token'
+  | 'calibre-full-scan'
+  | 'calibre-recently-added-scan'
+  | 'hardcover-cache-sync'
   | 'radarr-scan'
   | 'sonarr-scan'
   | 'download-sync'
@@ -262,6 +288,9 @@ interface AllSettings {
   vapidPrivate: string;
   main: MainSettings;
   plex: PlexSettings;
+  hardcover: HardcoverSettings;
+  calibreWeb: CalibreWebSettings;
+  calibreWebDownloader: CalibreWebDownloaderSettings;
   tautulli: TautulliSettings;
   radarr: RadarrSettings[];
   sonarr: SonarrSettings[];
@@ -308,6 +337,24 @@ class Settings {
         port: 32400,
         useSsl: false,
         libraries: [],
+      },
+      hardcover: {
+        token: '',
+      },
+      calibreWeb: {
+        hostname: '',
+        port: 8083,
+        useSsl: false,
+        urlBase: '',
+        apiKey: '',
+        externalUrl: '',
+      },
+      calibreWebDownloader: {
+        hostname: '',
+        port: 8085,
+        useSsl: false,
+        urlBase: '',
+        externalUrl: '',
       },
       tautulli: {},
       radarr: [],
@@ -413,6 +460,15 @@ class Settings {
         'plex-refresh-token': {
           schedule: '0 0 5 * * *',
         },
+        'calibre-recently-added-scan': {
+          schedule: '0 */5 * * * *',
+        },
+        'hardcover-cache-sync': {
+          schedule: '0 0 5 * * *',
+        },
+        'calibre-full-scan': {
+          schedule: '0 0 3 * * *',
+        },
         'radarr-scan': {
           schedule: '0 0 4 * * *',
         },
@@ -456,6 +512,30 @@ class Settings {
 
   set plex(data: PlexSettings) {
     this.data.plex = data;
+  }
+
+  get hardcover(): HardcoverSettings {
+    return this.data.hardcover;
+  }
+
+  set hardcover(data: HardcoverSettings) {
+    this.data.hardcover = data;
+  }
+
+  get calibreWeb(): CalibreWebSettings {
+    return this.data.calibreWeb;
+  }
+
+  set calibreWeb(data: CalibreWebSettings) {
+    this.data.calibreWeb = data;
+  }
+
+  get calibreWebDownloader(): CalibreWebDownloaderSettings {
+    return this.data.calibreWebDownloader;
+  }
+
+  set calibreWebDownloader(data: CalibreWebDownloaderSettings) {
+    this.data.calibreWebDownloader = data;
   }
 
   get tautulli(): TautulliSettings {

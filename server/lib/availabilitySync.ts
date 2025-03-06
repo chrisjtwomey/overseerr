@@ -1,3 +1,5 @@
+import type { CalibreWebBook } from '@server/api/calibre';
+import CalibreWebAPI from '@server/api/calibre';
 import type { PlexMetadata } from '@server/api/plexapi';
 import PlexAPI from '@server/api/plexapi';
 import RadarrAPI, { type RadarrMovie } from '@server/api/servarr/radarr';
@@ -16,6 +18,7 @@ import logger from '@server/logger';
 class AvailabilitySync {
   public running = false;
   private plexClient: PlexAPI;
+  private calibreClient: CalibreWebAPI;
   private plexSeasonsCache: Record<string, PlexMetadata[]>;
   private sonarrSeasonsCache: Record<string, SonarrSeason[]>;
   private radarrServers: RadarrSettings[];
@@ -43,6 +46,12 @@ class AvailabilitySync {
 
       if (admin) {
         this.plexClient = new PlexAPI({ plexToken: admin.plexToken });
+        this.calibreClient = new CalibreWebAPI({
+          url: CalibreWebAPI.buildUrl(settings.calibreWeb),
+          apiKey: settings.calibreWeb.apiKey || '',
+          cacheName: 'calibreWeb',
+          apiName: 'calibreWeb',
+        });
       } else {
         logger.error('An admin is not configured.');
       }
@@ -200,6 +209,26 @@ class AvailabilitySync {
               media.status4k === MediaStatus.PARTIALLY_AVAILABLE)
           ) {
             await this.mediaUpdater(media, true);
+          }
+        }
+
+        if (media.mediaType === 'book') {
+          let bookExists = false;
+
+          const existsInCalibre = await this.mediaExistsInCalibre(media);
+
+          if (existsInCalibre) {
+            bookExists = true;
+            logger.info(
+              `The book [Hardcover ID ${media.hardcoverId}] still exists. Preventing removal.`,
+              {
+                label: 'AvailabilitySync',
+              }
+            );
+          }
+
+          if (!bookExists && media.status === MediaStatus.AVAILABLE) {
+            await this.mediaUpdater(media, false);
           }
         }
       }
@@ -667,6 +696,37 @@ class AvailabilitySync {
     }
 
     return seasonExistsInPlex;
+  }
+
+  private async mediaExistsInCalibre(media: Media): Promise<boolean> {
+    let existsInCalibre = false;
+
+    try {
+      let calibreBook: CalibreWebBook | undefined;
+
+      if (media.hardcoverId) {
+        calibreBook = await this.calibreClient.getBookByHardcoverId(
+          media.hardcoverId
+        );
+
+        if (calibreBook) {
+          existsInCalibre = true;
+        }
+      }
+    } catch (e) {
+      if (!e.message.includes('404')) {
+        existsInCalibre = true;
+        logger.debug(
+          `Failure retrieving the book [Hardcover ID ${media.hardcoverId}] from Calibre.`,
+          {
+            errorMessage: e.message,
+            label: 'AvailabilitySync',
+          }
+        );
+      }
+    }
+
+    return existsInCalibre;
   }
 }
 

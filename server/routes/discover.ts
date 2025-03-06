@@ -1,3 +1,5 @@
+import type { SortOptions as BookSortOptions } from '@server/api/hardcover';
+import Hardcover from '@server/api/hardcover';
 import PlexTvAPI from '@server/api/plextv';
 import type { SortOptions } from '@server/api/themoviedb';
 import TheMovieDb from '@server/api/themoviedb';
@@ -14,6 +16,7 @@ import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { mapProductionCompany } from '@server/models/Movie';
 import {
+  mapBookResult,
   mapCollectionResult,
   mapMovieResult,
   mapPersonResult,
@@ -48,6 +51,30 @@ export const createTmdbWithRegionLanguage = (user?: User): TheMovieDb => {
   });
 };
 
+export const createHardcoverWithRegionLanguage = (user?: User): Hardcover => {
+  const settings = getSettings();
+
+  const region =
+    user?.settings?.region === 'all'
+      ? ''
+      : user?.settings?.region
+      ? user?.settings?.region
+      : settings.main.region;
+
+  const originalLanguage =
+    user?.settings?.originalLanguage === 'all'
+      ? ''
+      : user?.settings?.originalLanguage
+      ? user?.settings?.originalLanguage
+      : settings.main.originalLanguage;
+
+  return new Hardcover({
+    token: settings.hardcover.token,
+    region,
+    originalLanguage,
+  });
+};
+
 const discoverRoutes = Router();
 
 const QueryFilterOptions = z.object({
@@ -55,6 +82,8 @@ const QueryFilterOptions = z.object({
   sortBy: z.coerce.string().optional(),
   primaryReleaseDateGte: z.coerce.string().optional(),
   primaryReleaseDateLte: z.coerce.string().optional(),
+  releaseDateGte: z.coerce.string().optional(),
+  releaseDateLte: z.coerce.string().optional(),
   firstAirDateGte: z.coerce.string().optional(),
   firstAirDateLte: z.coerce.string().optional(),
   studio: z.coerce.string().optional(),
@@ -809,6 +838,49 @@ discoverRoutes.get<{ language: string }, GenreSliderItem[]>(
   }
 );
 
+discoverRoutes.get<{ language: string }, GenreSliderItem[]>(
+  '/genreslider/book',
+  async (req, res, next) => {
+    const hardcover = createHardcoverWithRegionLanguage(req.user);
+
+    try {
+      const mappedGenres: GenreSliderItem[] = [];
+
+      const genres = await hardcover.getGenres();
+
+      await Promise.all(
+        genres.map(async (genre) => {
+          // const booksData = await hardcover.getDiscoverBooks({
+          //   genre: genre.id,
+          // });
+
+          mappedGenres.push({
+            id: genre.id,
+            name: genre.name,
+            // backdrops: booksData.results
+            //   .filter((title) => !!title.image_url)
+            //   .map((title) => title.image_url) as string[],
+            backdrops: [],
+          });
+        })
+      );
+
+      const sortedData = sortBy(mappedGenres, 'name');
+
+      return res.status(200).json(sortedData);
+    } catch (e) {
+      logger.debug('Something went wrong retrieving the book genre slider', {
+        label: 'API',
+        errorMessage: e.message,
+      });
+      return next({
+        status: 500,
+        message: 'Unable to retrieve book genre slider.',
+      });
+    }
+  }
+);
+
 discoverRoutes.get<Record<string, unknown>, WatchlistResponse>(
   '/watchlist',
   async (req, res) => {
@@ -849,5 +921,188 @@ discoverRoutes.get<Record<string, unknown>, WatchlistResponse>(
     });
   }
 );
+
+discoverRoutes.get('/books', async (req, res, next) => {
+  const hardcover = createHardcoverWithRegionLanguage(req.user);
+  const query = QueryFilterOptions.parse(req.query);
+  const data = await hardcover.getDiscoverBooks({
+    page: Number(query.page),
+    sortBy: query.sortBy as BookSortOptions,
+    language: req.locale ?? query.language,
+    originalLanguage: query.language,
+    genre: query.genre,
+    releaseDateLte: query.releaseDateLte
+      ? new Date(query.releaseDateLte).toISOString().split('T')[0]
+      : undefined,
+    releaseDateGte: query.releaseDateGte
+      ? new Date(query.releaseDateGte).toISOString().split('T')[0]
+      : undefined,
+    keywords: query.keywords,
+    voteAverageGte: query.voteAverageGte,
+    voteAverageLte: query.voteAverageLte,
+    voteCountGte: query.voteCountGte,
+    voteCountLte: query.voteCountLte,
+  });
+
+  const media = await Media.getRelatedMedia(
+    data.results.map((result) => result.id)
+  );
+
+  try {
+    return res.status(200).json({
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+      keywords: [],
+      results: data.results.map((result) =>
+        mapBookResult(
+          result,
+          media.find(
+            (med) =>
+              med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
+          )
+        )
+      ),
+    });
+  } catch (e) {
+    logger.debug('Something went wrong retrieving discover books', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve discover books.',
+    });
+  }
+});
+
+discoverRoutes.get('/books/trending', async (req, res, next) => {
+  const hardcover = createHardcoverWithRegionLanguage(req.user);
+
+  const data = await hardcover.getTrendingBooks({
+    page: Number(req.query.page),
+    language: (req.query.language as string) ?? req.locale,
+  });
+
+  const media = await Media.getRelatedMedia(
+    data.results.map((result) => result.id)
+  );
+
+  try {
+    return res.status(200).json({
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+      keywords: [],
+      results: data.results.map((result) =>
+        mapBookResult(
+          result,
+          media.find(
+            (med) =>
+              med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
+          )
+        )
+      ),
+    });
+  } catch (e) {
+    logger.debug('Something went wrong retrieving trending books', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve trending books.',
+    });
+  }
+});
+
+discoverRoutes.get('/books/popular', async (req, res, next) => {
+  const hardcover = createHardcoverWithRegionLanguage(req.user);
+  const query = QueryFilterOptions.parse(req.query);
+  const data = await hardcover.getDiscoverBooks({
+    page: Number(query.page),
+    language: (req.query.language as string) ?? req.locale,
+    sortBy: 'popularity.desc',
+  });
+
+  const media = await Media.getRelatedMedia(
+    data.results.map((result) => result.id)
+  );
+
+  try {
+    return res.status(200).json({
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+      keywords: [],
+      results: data.results.map((result) =>
+        mapBookResult(
+          result,
+          media.find(
+            (med) =>
+              med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
+          )
+        )
+      ),
+    });
+  } catch (e) {
+    logger.debug('Something went wrong retrieving popular books', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve popular books.',
+    });
+  }
+});
+
+discoverRoutes.get('/books/upcoming', async (req, res, next) => {
+  const hardcover = createHardcoverWithRegionLanguage(req.user);
+
+  const now = new Date();
+  const offset = now.getTimezoneOffset();
+  const date = new Date(now.getTime() - offset * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
+
+  const data = await hardcover.getDiscoverBooks({
+    releaseDateGte: date,
+    page: Number(req.query.page),
+    language: (req.query.language as string) ?? req.locale,
+    sortBy: 'popularity.desc',
+  });
+
+  const media = await Media.getRelatedMedia(
+    data.results.map((result) => result.id)
+  );
+
+  try {
+    return res.status(200).json({
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+      keywords: [],
+      results: data.results.map((result) =>
+        mapBookResult(
+          result,
+          media.find(
+            (med) =>
+              med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
+          )
+        )
+      ),
+    });
+  } catch (e) {
+    logger.debug('Something went wrong retrieving upcoming books', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve upcoming books.',
+    });
+  }
+});
 
 export default discoverRoutes;

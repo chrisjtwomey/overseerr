@@ -1,8 +1,13 @@
+import type { CalibreWebBook } from '@server/api/calibre';
+import CalibreWebAPI from '@server/api/calibre';
 import TheMovieDb from '@server/api/themoviedb';
 import { MediaStatus, MediaType } from '@server/constants/media';
 import { getRepository } from '@server/datasource';
 import Media from '@server/entity/Media';
+import MediaRequest from '@server/entity/MediaRequest';
 import Season from '@server/entity/Season';
+import { User } from '@server/entity/User';
+import notificationManager, { Notification } from '@server/lib/notifications';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import AsyncLock from '@server/utils/asyncLock';
@@ -24,9 +29,12 @@ export interface RunnableScanner<T> {
 }
 
 export interface MediaIds {
-  tmdbId: number;
+  tmdbId?: number;
   imdbId?: string;
   tvdbId?: number;
+  hardcoverId?: number;
+  isbn?: string;
+  asin?: string;
   isHama?: boolean;
 }
 
@@ -34,6 +42,7 @@ interface ProcessOptions {
   is4k?: boolean;
   mediaAddedAt?: Date;
   ratingKey?: string;
+  calibreBookId?: number;
   serviceId?: number;
   externalServiceId?: number;
   externalServiceSlug?: string;
@@ -63,6 +72,7 @@ class BaseScanner<T> {
   protected running = false;
   readonly asyncLock = new AsyncLock();
   readonly tmdb = new TheMovieDb();
+  protected calibreClient: CalibreWebAPI;
 
   protected constructor(
     scannerName: string,
@@ -79,11 +89,14 @@ class BaseScanner<T> {
     this.updateRate = updateRate ?? UPDATE_RATE;
   }
 
-  private async getExisting(tmdbId: number, mediaType: MediaType) {
+  private async getExisting(mediaId: number, mediaType: MediaType) {
     const mediaRepository = getRepository(Media);
 
     const existing = await mediaRepository.findOne({
-      where: { tmdbId: tmdbId, mediaType },
+      where: [
+        { tmdbId: mediaId, mediaType },
+        { hardcoverId: mediaId, mediaType },
+      ],
     });
 
     return existing;
@@ -522,6 +535,201 @@ class BaseScanner<T> {
         });
         await mediaRepository.save(newMedia);
         this.log(`Saved ${title}`);
+      }
+    });
+  }
+
+  protected async processBook(
+    hardcoverId: number,
+    {
+      mediaAddedAt,
+      calibreBookId,
+      serviceId,
+      externalServiceId,
+      externalServiceSlug,
+      processing = false,
+      title = 'Unknown Title',
+    }: ProcessOptions = {}
+  ): Promise<void> {
+    const mediaRepository = getRepository(Media);
+    await this.asyncLock.dispatch(hardcoverId, async () => {
+      const existing = await this.getExisting(hardcoverId, MediaType.BOOK);
+      if (existing) {
+        let changedExisting = false;
+        if (existing.status !== MediaStatus.AVAILABLE) {
+          existing.status = processing
+            ? MediaStatus.PROCESSING
+            : MediaStatus.AVAILABLE;
+          if (mediaAddedAt) {
+            existing.mediaAddedAt = mediaAddedAt;
+          }
+          changedExisting = true;
+        }
+        if (!changedExisting && !existing.mediaAddedAt && mediaAddedAt) {
+          existing.mediaAddedAt = mediaAddedAt;
+          changedExisting = true;
+        }
+        if (serviceId !== undefined && existing.serviceId !== serviceId) {
+          existing.serviceId = serviceId;
+          changedExisting = true;
+        }
+        if (
+          externalServiceId !== undefined &&
+          existing.externalServiceId !== externalServiceId
+        ) {
+          existing.externalServiceId = externalServiceId;
+          changedExisting = true;
+        }
+        if (
+          externalServiceSlug !== undefined &&
+          existing.externalServiceSlug !== externalServiceSlug
+        ) {
+          existing.externalServiceSlug = externalServiceSlug;
+          changedExisting = true;
+        }
+
+        if (
+          calibreBookId !== undefined &&
+          existing.calibreBookId !== calibreBookId
+        ) {
+          existing.calibreBookId = calibreBookId;
+          changedExisting = true;
+        }
+
+        if (changedExisting) {
+          await mediaRepository.save(existing);
+          this.log(
+            `Media for ${title} exists. Changes were detected and the title will be updated.`,
+            'info'
+          );
+
+          if (existing.status !== MediaStatus.AVAILABLE) {
+            return;
+          }
+
+          // Get the media request to get the requestedBy user
+          const requestRepository = getRepository(MediaRequest);
+          const request = await requestRepository
+            .createQueryBuilder('request')
+            .leftJoin('request.media', 'media')
+            .leftJoinAndSelect('request.requestedBy', 'user')
+            .where('media.hardcoverId = :hardcoverId', {
+              hardcoverId: hardcoverId,
+            })
+            .andWhere('media.mediaType = :mediaType', {
+              mediaType: MediaType.BOOK,
+            })
+            .getOne();
+
+          if (!request || !request.requestedBy) {
+            return;
+          }
+
+          const userRepository = getRepository(User);
+          const userId = request.requestedBy.id;
+          // Fetch the user with their settings
+          const user = await userRepository
+            .createQueryBuilder('user')
+            .where('user.id = :userId', { userId })
+            .leftJoinAndSelect('user.settings', 'settings')
+            .getOne();
+
+          if (!user || !user.settings) {
+            this.log(
+              `User ${userId} not found or settings not available for book '${title}'`,
+              'error',
+              { userId, title }
+            );
+            return;
+          }
+
+          if (
+            !user.settings?.autoSendAvailableRequestedBooks ||
+            !user.settings.calibreAPIKey
+          ) {
+            return;
+          }
+          this.log(
+            `Sending book '${title}' to user ${user.id}'s eReader`,
+            'info',
+            { userId: user.id, title }
+          );
+
+          if (!this.calibreClient) {
+            const settings = getSettings();
+            this.calibreClient = new CalibreWebAPI({
+              url: CalibreWebAPI.buildUrl(settings.calibreWeb),
+              apiKey: settings.calibreWeb.apiKey || '',
+              cacheName: 'calibreWeb',
+              apiName: 'calibreWeb',
+            });
+          }
+
+          let calibreBook: CalibreWebBook | undefined;
+          try {
+            calibreBook = await this.calibreClient.getBookByHardcoverId(
+              hardcoverId
+            );
+          } catch (e) {
+            if (existing.calibreBookId) {
+              calibreBook = await this.calibreClient.getBookById(
+                existing.calibreBookId
+              );
+            }
+          }
+
+          if (!calibreBook) {
+            this.log(
+              `No Calibre book for hardcoverId ${hardcoverId} to send to eReader`,
+              'error',
+              { hardcoverId }
+            );
+            return;
+          }
+
+          try {
+            await this.calibreClient.sendToEReader({
+              userAPIKey: user.settings.calibreAPIKey,
+              bookId: calibreBook.id,
+            });
+
+            notificationManager.sendNotification(
+              Notification.BOOK_SEND_SUCCESS,
+              {
+                event: `${title} has been sent to eReader`,
+                subject: title,
+                media: existing,
+                notifyAdmin: false,
+                notifySystem: false,
+                notifyUser: user,
+              }
+            );
+          } catch (e) {
+            this.log(
+              `Failed to send book '${title}' to user ${user.id}'s eReader: ${e.message}`,
+              'error',
+              { userId: user.id, title, error: e.message }
+            );
+            return;
+          }
+        } else {
+          this.log(`Title already exists and no changes detected for ${title}`);
+        }
+      } else {
+        const newMedia = new Media();
+        newMedia.hardcoverId = hardcoverId;
+        newMedia.status = !processing
+          ? MediaStatus.AVAILABLE
+          : MediaStatus.PROCESSING;
+        newMedia.mediaType = MediaType.BOOK;
+        newMedia.serviceId = serviceId;
+        newMedia.externalServiceId = externalServiceId;
+        newMedia.externalServiceSlug = externalServiceSlug;
+        if (mediaAddedAt) {
+          newMedia.mediaAddedAt = mediaAddedAt;
+        }
+        await mediaRepository.save(newMedia);
+        this.log(`Saved new media: ${title}`);
       }
     });
   }

@@ -88,6 +88,10 @@ export const sliderTitles = defineMessages({
   tmdbsearch: 'TMDB Search',
   tmdbmoviestreamingservices: 'TMDB Movie Streaming Services',
   tmdbtvstreamingservices: 'TMDB TV Streaming Services',
+  trendingbooks: 'Trending Books',
+  popularbooks: 'Popular Books',
+  upcomingbooks: 'Upcoming Books',
+  bookgenres: 'Book Genres',
 });
 
 export const QueryFilterOptions = z.object({
@@ -96,6 +100,8 @@ export const QueryFilterOptions = z.object({
   primaryReleaseDateLte: z.string().optional(),
   firstAirDateGte: z.string().optional(),
   firstAirDateLte: z.string().optional(),
+  releaseDateGte: z.string().optional(),
+  releaseDateLte: z.string().optional(),
   studio: z.string().optional(),
   genre: z.string().optional(),
   keywords: z.string().optional(),
@@ -129,6 +135,14 @@ export const prepareFilterValues = (
 
   if (values.primaryReleaseDateLte) {
     filterValues.primaryReleaseDateLte = values.primaryReleaseDateLte;
+  }
+
+  if (values.releaseDateGte) {
+    filterValues.releaseDateGte = values.releaseDateGte;
+  }
+
+  if (values.releaseDateLte) {
+    filterValues.releaseDateLte = values.releaseDateLte;
   }
 
   if (values.firstAirDateGte) {

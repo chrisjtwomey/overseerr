@@ -85,6 +85,10 @@ export interface WatchProviderDetails {
   name: string;
 }
 
+export interface EntityDetails {
+  type: 'movie' | 'tv' | 'person' | 'author' | 'book';
+}
+
 export const mapCast = (person: TmdbCreditCast): Cast => ({
   castId: person.cast_id,
   character: person.character,

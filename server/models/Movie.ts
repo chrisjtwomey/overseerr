@@ -7,6 +7,7 @@ import type Media from '@server/entity/Media';
 import type {
   Cast,
   Crew,
+  EntityDetails,
   ExternalIds,
   Genre,
   Keyword,
@@ -37,7 +38,8 @@ export interface Video {
     | 'Bloopers';
 }
 
-export interface MovieDetails {
+export interface MovieDetails extends EntityDetails {
+  type: 'movie';
   id: number;
   imdbId?: string;
   adult: boolean;
@@ -103,6 +105,7 @@ export const mapMovieDetails = (
   movie: TmdbMovieDetails,
   media?: Media
 ): MovieDetails => ({
+  type: 'movie',
   id: movie.id,
   adult: movie.adult,
   budget: movie.budget,

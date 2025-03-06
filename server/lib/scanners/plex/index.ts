@@ -225,6 +225,12 @@ class PlexScanner
       (media) => media.videoResolution === '4k'
     );
 
+    if (!mediaIds.tmdbId) {
+      this.log('No TMDB ID found for this title. Skipping.', 'debug', {
+        title: plexitem.title,
+      });
+      return;
+    }
     await this.processMovie(mediaIds.tmdbId, {
       is4k: has4k && this.enable4kMovie,
       mediaAddedAt: new Date(plexitem.addedAt * 1000),
@@ -259,6 +265,13 @@ class PlexScanner
     });
 
     const mediaIds = await this.getMediaIds(metadata);
+
+    if (!mediaIds.tmdbId) {
+      this.log('No TMDB ID found for this title. Skipping.', 'debug', {
+        title: plexitem.title,
+      });
+      return;
+    }
 
     // If the media is from HAMA, and doesn't have a TVDb ID, we will treat it
     // as a special HAMA movie

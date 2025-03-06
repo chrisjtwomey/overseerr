@@ -1,5 +1,4 @@
-import type { IssueType } from '@server/constants/issue';
-import { IssueStatus } from '@server/constants/issue';
+import { IssueStatus, IssueType } from '@server/constants/issue';
 import {
   Column,
   CreateDateColumn,
@@ -18,7 +17,7 @@ class Issue {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: IssueType.OTHER })
   public issueType: IssueType;
 
   @Column({ type: 'int', default: IssueStatus.OPEN })

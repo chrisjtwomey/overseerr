@@ -6,8 +6,9 @@ interface PlayButtonProps {
 
 export interface PlayButtonLink {
   text: string;
-  url: string;
   svg: React.ReactNode;
+  url?: string;
+  onClick?: () => void;
 }
 
 const PlayButton = ({ links }: PlayButtonProps) => {
@@ -25,6 +26,10 @@ const PlayButton = ({ links }: PlayButtonProps) => {
         </>
       }
       onClick={() => {
+        if (links[0].onClick) {
+          links[0].onClick();
+          return;
+        }
         window.open(links[0].url, '_blank');
       }}
     >

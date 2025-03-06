@@ -11,8 +11,10 @@ import type {
   TmdbKeywordSearchResponse,
   TmdbLanguage,
   TmdbMovieDetails,
+  TmdbMovieResult,
   TmdbNetwork,
   TmdbPersonCombinedCredits,
+  TmdbPersonCredit,
   TmdbPersonDetails,
   TmdbProductionCompany,
   TmdbRegion,
@@ -21,6 +23,7 @@ import type {
   TmdbSearchTvResponse,
   TmdbSeasonWithEpisodes,
   TmdbTvDetails,
+  TmdbTvResult,
   TmdbUpcomingMoviesResponse,
   TmdbWatchProviderDetails,
   TmdbWatchProviderRegion,
@@ -132,6 +135,12 @@ class TheMovieDb extends ExternalAPI {
         params: { query, page, include_adult: includeAdult, language },
       });
 
+      data.results.map((result) => {
+        if (result.media_type === 'movie' || result.media_type === 'tv') {
+          this.mapTMDBResult(result);
+        }
+      });
+
       return data;
     } catch (e) {
       return {
@@ -161,6 +170,8 @@ class TheMovieDb extends ExternalAPI {
         },
       });
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       return {
@@ -189,6 +200,8 @@ class TheMovieDb extends ExternalAPI {
           first_air_date_year: year,
         },
       });
+
+      data.results.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -234,6 +247,9 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.cast.map((result) => this.mapTMDBResult(result));
+      data.crew.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(
@@ -263,6 +279,8 @@ class TheMovieDb extends ExternalAPI {
         43200
       );
 
+      this.mapTMDBResult(data);
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch movie details: ${e.message}`);
@@ -289,6 +307,8 @@ class TheMovieDb extends ExternalAPI {
         },
         43200
       );
+
+      this.mapTMDBResult(data);
 
       return data;
     } catch (e) {
@@ -342,6 +362,8 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch discover movies: ${e.message}`);
@@ -367,6 +389,8 @@ class TheMovieDb extends ExternalAPI {
           },
         }
       );
+
+      data.results.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -394,6 +418,8 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch movies by keyword: ${e.message}`);
@@ -420,6 +446,8 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(
@@ -444,6 +472,8 @@ class TheMovieDb extends ExternalAPI {
           language,
         },
       });
+
+      data.results.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -519,6 +549,8 @@ class TheMovieDb extends ExternalAPI {
         },
       });
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch discover movies: ${e.message}`);
@@ -593,6 +625,8 @@ class TheMovieDb extends ExternalAPI {
         },
       });
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch discover TV: ${e.message}`);
@@ -618,6 +652,8 @@ class TheMovieDb extends ExternalAPI {
           },
         }
       );
+
+      data.results.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -646,6 +682,12 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.results.map((result) => {
+        if (result.media_type === 'movie' || result.media_type === 'tv') {
+          this.mapTMDBResult(result);
+        }
+      });
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch all trending: ${e.message}`);
@@ -669,6 +711,8 @@ class TheMovieDb extends ExternalAPI {
         }
       );
 
+      data.results.map((result) => this.mapTMDBResult(result));
+
       return data;
     } catch (e) {
       throw new Error(`[TMDB] Failed to fetch all trending: ${e.message}`);
@@ -691,6 +735,8 @@ class TheMovieDb extends ExternalAPI {
           },
         }
       );
+
+      data.results.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -815,6 +861,9 @@ class TheMovieDb extends ExternalAPI {
           },
         }
       );
+
+      this.mapTMDBResult(data);
+      data.parts.map((result) => this.mapTMDBResult(result));
 
       return data;
     } catch (e) {
@@ -1123,6 +1172,21 @@ class TheMovieDb extends ExternalAPI {
       );
     }
   }
+
+  private mapTMDBResult = (
+    media:
+      | TmdbMovieResult
+      | TmdbTvResult
+      | TmdbMovieDetails
+      | TmdbTvDetails
+      | TmdbCollection
+      | TmdbPersonCredit
+  ) => {
+    if (media.poster_path !== null && media.poster_path !== undefined) {
+      media.poster_path =
+        'https://image.tmdb.org/t/p/w300_and_h450_face' + media.poster_path;
+    }
+  };
 }
 
 export default TheMovieDb;

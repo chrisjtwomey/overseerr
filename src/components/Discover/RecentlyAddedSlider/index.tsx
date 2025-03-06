@@ -1,5 +1,5 @@
 import Slider from '@app/components/Slider';
-import TmdbTitleCard from '@app/components/TitleCard/TmdbTitleCard';
+import MediaTitleCard from '@app/components/TitleCard/MediaTitleCard';
 import { Permission, useUser } from '@app/hooks/useUser';
 import type { MediaResultsResponse } from '@server/interfaces/api/mediaInterfaces';
 import { defineMessages, useIntl } from 'react-intl';
@@ -37,11 +37,12 @@ const RecentlyAddedSlider = () => {
         sliderKey="media"
         isLoading={!media}
         items={(media?.results ?? []).map((item) => (
-          <TmdbTitleCard
+          <MediaTitleCard
             key={`media-slider-item-${item.id}`}
             id={item.id}
             tmdbId={item.tmdbId}
             tvdbId={item.tvdbId}
+            hardcoverId={item.hardcoverId}
             type={item.mediaType}
           />
         ))}

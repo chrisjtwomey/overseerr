@@ -1,10 +1,13 @@
+import AuthorCard from '@app/components/AuthorCard';
 import PersonCard from '@app/components/PersonCard';
 import TitleCard from '@app/components/TitleCard';
-import TmdbTitleCard from '@app/components/TitleCard/TmdbTitleCard';
+import MediaTitleCard from '@app/components/TitleCard/MediaTitleCard';
 import useVerticalScroll from '@app/hooks/useVerticalScroll';
 import globalMessages from '@app/i18n/globalMessages';
 import type { WatchlistItem } from '@server/interfaces/api/discoverInterfaces';
 import type {
+  AuthorResult,
+  BookResult,
   CollectionResult,
   MovieResult,
   PersonResult,
@@ -13,7 +16,14 @@ import type {
 import { useIntl } from 'react-intl';
 
 type ListViewProps = {
-  items?: (TvResult | MovieResult | PersonResult | CollectionResult)[];
+  items?: (
+    | TvResult
+    | MovieResult
+    | BookResult
+    | AuthorResult
+    | PersonResult
+    | CollectionResult
+  )[];
   plexItems?: WatchlistItem[];
   isEmpty?: boolean;
   isLoading?: boolean;
@@ -42,7 +52,7 @@ const ListView = ({
         {plexItems?.map((title, index) => {
           return (
             <li key={`${title.ratingKey}-${index}`}>
-              <TmdbTitleCard
+              <MediaTitleCard
                 id={title.tmdbId}
                 tmdbId={title.tmdbId}
                 type={title.mediaType}
@@ -91,6 +101,24 @@ const ListView = ({
                 />
               );
               break;
+            case 'book':
+              titleCard = (
+                <TitleCard
+                  id={title.id}
+                  image={title.posterPath}
+                  status={title.mediaInfo?.status}
+                  summary={title.overview}
+                  title={title.title}
+                  userScore={title.voteAverage}
+                  year={title.releaseDate}
+                  mediaType={title.mediaType}
+                  inProgress={
+                    (title.mediaInfo?.downloadStatus ?? []).length > 0
+                  }
+                  canExpand
+                />
+              );
+              break;
             case 'collection':
               titleCard = (
                 <TitleCard
@@ -107,6 +135,16 @@ const ListView = ({
               titleCard = (
                 <PersonCard
                   personId={title.id}
+                  name={title.name}
+                  profilePath={title.profilePath}
+                  canExpand
+                />
+              );
+              break;
+            case 'author':
+              titleCard = (
+                <AuthorCard
+                  authorId={title.id}
                   name={title.name}
                   profilePath={title.profilePath}
                   canExpand

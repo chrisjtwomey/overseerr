@@ -1,4 +1,8 @@
 import type {
+  HardcoverAuthor,
+  HardcoverBook,
+} from '@server/api/hardcover/interfaces';
+import type {
   TmdbCollectionResult,
   TmdbMovieDetails,
   TmdbMovieResult,
@@ -10,7 +14,7 @@ import type {
 import { MediaType as MainMediaType } from '@server/constants/media';
 import type Media from '@server/entity/Media';
 
-export type MediaType = 'tv' | 'movie' | 'person' | 'collection';
+export type MediaType = 'tv' | 'movie' | 'book' | 'person' | 'collection';
 
 interface SearchResult {
   id: number;
@@ -44,6 +48,13 @@ export interface TvResult extends SearchResult {
   firstAirDate: string;
 }
 
+export interface BookResult extends SearchResult {
+  mediaType: 'book';
+  title: string;
+  posterPath: string;
+  releaseDate: string;
+}
+
 export interface CollectionResult {
   id: number;
   mediaType: 'collection';
@@ -66,7 +77,22 @@ export interface PersonResult {
   knownFor: (MovieResult | TvResult)[];
 }
 
-export type Results = MovieResult | TvResult | PersonResult | CollectionResult;
+export interface AuthorResult {
+  id: number;
+  name: string;
+  popularity: number;
+  profilePath?: string;
+  mediaType: 'author';
+  knownFor: BookResult[];
+}
+
+export type Results =
+  | MovieResult
+  | TvResult
+  | AuthorResult
+  | BookResult
+  | PersonResult
+  | CollectionResult;
 
 export const mapMovieResult = (
   movieResult: TmdbMovieResult,
@@ -112,6 +138,35 @@ export const mapTvResult = (
   mediaInfo: media,
 });
 
+export const mapBookResult = (
+  bookResult: HardcoverBook,
+  media?: Media
+): BookResult => ({
+  id: bookResult.id,
+  mediaType: bookResult.media_type || 'book',
+  releaseDate: bookResult.release_date,
+  title: bookResult.title,
+  posterPath: bookResult.image_url || '',
+  popularity: 0, // TODO: users_count
+  voteCount: bookResult.ratings_count,
+  voteAverage: bookResult.rating,
+  genreIds: [],
+  overview: bookResult.headline || '',
+  originalLanguage: '',
+  mediaInfo: media,
+});
+
+export const mapAuthorResult = (
+  authorResult: HardcoverAuthor
+): AuthorResult => ({
+  id: authorResult.id,
+  name: authorResult.name,
+  popularity: 0, // TODO: users_count
+  mediaType: 'author',
+  profilePath: authorResult.image_url,
+  knownFor: authorResult.books.map((book) => mapBookResult(book)),
+});
+
 export const mapCollectionResult = (
   collectionResult: TmdbCollectionResult
 ): CollectionResult => ({
@@ -148,8 +203,11 @@ export const mapSearchResults = (
   results: (
     | TmdbMovieResult
     | TmdbTvResult
+    | HardcoverBook
     | TmdbPersonResult
     | TmdbCollectionResult
+    | HardcoverAuthor
+    | HardcoverBook
   )[],
   media?: Media[]
 ): Results[] =>
@@ -171,6 +229,16 @@ export const mapSearchResults = (
               req.tmdbId === result.id && req.mediaType === MainMediaType.TV
           )
         );
+      case 'book':
+        return mapBookResult(
+          result,
+          media?.find(
+            (req) =>
+              req.tmdbId === result.id && req.mediaType === MainMediaType.BOOK
+          )
+        );
+      case 'author':
+        return mapAuthorResult(result);
       case 'collection':
         return mapCollectionResult(result);
       default:

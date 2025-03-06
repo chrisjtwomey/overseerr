@@ -33,6 +33,7 @@ export interface UserSettings {
   notificationTypes: Partial<NotificationAgentTypes>;
   watchlistSyncMovies?: boolean;
   watchlistSyncTv?: boolean;
+  calibreAPIKey?: string;
 }
 
 interface UserHookResponse {

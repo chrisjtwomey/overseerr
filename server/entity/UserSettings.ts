@@ -43,6 +43,12 @@ export class UserSettings {
   public discordId?: string;
 
   @Column({ nullable: true })
+  public calibreAPIKey?: string;
+
+  @Column({ default: false })
+  public autoSendAvailableRequestedBooks?: boolean;
+
+  @Column({ nullable: true })
   public pushbulletAccessToken?: string;
 
   @Column({ nullable: true })

@@ -13,6 +13,7 @@ const messages = defineMessages({
   status: '{status}',
   status4k: '4K {status}',
   playonplex: 'Play on Plex',
+  openincalibreweb: 'Open in Calibre Web',
   openinarr: 'Open in {arr}',
   managemedia: 'Manage {mediaType}',
   seasonepisodenumber: 'S{seasonNumber}E{episodeNumber}',
@@ -24,9 +25,11 @@ interface StatusBadgeProps {
   is4k?: boolean;
   inProgress?: boolean;
   plexUrl?: string;
+  calibreWebUrl?: string;
   serviceUrl?: string;
   tmdbId?: number;
-  mediaType?: 'movie' | 'tv';
+  hardcoverId?: number;
+  mediaType?: 'movie' | 'tv' | 'book';
   title?: string | string[];
 }
 
@@ -36,6 +39,7 @@ const StatusBadge = ({
   is4k = false,
   inProgress = false,
   plexUrl,
+  calibreWebUrl,
   serviceUrl,
   tmdbId,
   mediaType,
@@ -94,6 +98,15 @@ const StatusBadge = ({
         arr: mediaType === 'movie' ? 'Radarr' : 'Sonarr',
       });
     }
+  }
+
+  if (
+    mediaType &&
+    calibreWebUrl &&
+    hasPermission([Permission.REQUEST, Permission.REQUEST_BOOK])
+  ) {
+    mediaLink = calibreWebUrl;
+    mediaLinkDescription = intl.formatMessage(messages.openincalibreweb);
   }
 
   const tooltipContent = (

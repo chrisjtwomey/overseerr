@@ -8,6 +8,7 @@ import { EyeIcon } from '@heroicons/react/24/solid';
 import { IssueStatus } from '@server/constants/issue';
 import { MediaType } from '@server/constants/media';
 import type Issue from '@server/entity/Issue';
+import type { BookDetails } from '@server/models/Book';
 import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import Link from 'next/link';
@@ -27,10 +28,6 @@ const messages = defineMessages({
   unknownissuetype: 'Unknown',
 });
 
-const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
-  return (movie as MovieDetails).title !== undefined;
-};
-
 interface IssueItemProps {
   issue: Issue;
 }
@@ -42,10 +39,13 @@ const IssueItem = ({ issue }: IssueItemProps) => {
     triggerOnce: true,
   });
   const url =
-    issue.media.mediaType === 'movie'
-      ? `/api/v1/movie/${issue.media.tmdbId}`
-      : `/api/v1/tv/${issue.media.tmdbId}`;
-  const { data: title, error } = useSWR<MovieDetails | TvDetails>(
+    issue.media.mediaType === MediaType.MOVIE
+      ? `/api/v1/${issue.media.mediaType}/${issue.media.tmdbId}`
+      : issue.media.mediaType === MediaType.TV
+      ? `/api/v1/${issue.media.mediaType}/${issue.media.tmdbId}`
+      : `api/v1/${issue.media.mediaType}/${issue.media.hardcoverId}`;
+
+  const { data: title, error } = useSWR<MovieDetails | TvDetails | BookDetails>(
     inView ? url : null
   );
 
@@ -68,7 +68,7 @@ const IssueItem = ({ issue }: IssueItemProps) => {
 
   const problemSeasonEpisodeLine: React.ReactNode[] = [];
 
-  if (!isMovie(title) && issue) {
+  if (title.type === 'tv' && issue) {
     problemSeasonEpisodeLine.push(
       <>
         <span className="card-field-name">
@@ -131,14 +131,16 @@ const IssueItem = ({ issue }: IssueItemProps) => {
             href={
               issue.media.mediaType === MediaType.MOVIE
                 ? `/movie/${issue.media.tmdbId}`
-                : `/tv/${issue.media.tmdbId}`
+                : issue.media.mediaType === MediaType.TV
+                ? `/tv/${issue.media.tmdbId}`
+                : `/book/${issue.media.hardcoverId}`
             }
           >
             <a className="relative h-auto w-12 flex-shrink-0 scale-100 transform-gpu overflow-hidden rounded-md transition duration-300 hover:scale-105">
               <CachedImage
                 src={
                   title.posterPath
-                    ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${title.posterPath}`
+                    ? `${title.posterPath}`
                     : '/images/overseerr_poster_not_found.png'
                 }
                 alt=""
@@ -151,20 +153,24 @@ const IssueItem = ({ issue }: IssueItemProps) => {
           </Link>
           <div className="flex flex-col justify-center overflow-hidden pl-2 xl:pl-4">
             <div className="pt-0.5 text-xs text-white sm:pt-1">
-              {(isMovie(title) ? title.releaseDate : title.firstAirDate)?.slice(
-                0,
-                4
-              )}
+              {(title.type === MediaType.MOVIE || title.type === MediaType.BOOK
+                ? title.releaseDate
+                : title.firstAirDate
+              )?.slice(0, 4)}
             </div>
             <Link
               href={
                 issue.media.mediaType === MediaType.MOVIE
                   ? `/movie/${issue.media.tmdbId}`
-                  : `/tv/${issue.media.tmdbId}`
+                  : issue.media.mediaType === MediaType.TV
+                  ? `/tv/${issue.media.tmdbId}`
+                  : `/book/${issue.media.hardcoverId}`
               }
             >
               <a className="mr-2 min-w-0 truncate text-lg font-bold text-white hover:underline xl:text-xl">
-                {isMovie(title) ? title.title : title.name}
+                {title.type === MediaType.MOVIE || title.type === MediaType.BOOK
+                  ? title.title
+                  : title.name}
               </a>
             </Link>
             {problemSeasonEpisodeLine.length > 0 && (

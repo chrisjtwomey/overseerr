@@ -1,4 +1,6 @@
+import Hardcover from '@server/api/hardcover';
 import TheMovieDb from '@server/api/themoviedb';
+import type { TmdbExternalIds } from '@server/api/themoviedb/interfaces';
 import {
   MediaRequestStatus,
   MediaStatus,
@@ -8,6 +10,7 @@ import { getRepository } from '@server/datasource';
 import type { MediaRequestBody } from '@server/interfaces/api/requestInterfaces';
 import notificationManager, { Notification } from '@server/lib/notifications';
 import { Permission } from '@server/lib/permissions';
+import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { truncate } from 'lodash';
 import {
@@ -42,7 +45,11 @@ export class MediaRequest {
     user: User,
     options: MediaRequestOptions = {}
   ): Promise<MediaRequest> {
+    const settings = getSettings();
     const tmdb = new TheMovieDb();
+    const hardcover = new Hardcover({
+      token: settings.hardcover.token,
+    });
     const mediaRepository = getRepository(Media);
     const requestRepository = getRepository(MediaRequest);
     const userRepository = getRepository(User);
@@ -101,6 +108,18 @@ export class MediaRequest {
           requestBody.is4k ? '4K ' : ''
         }series requests.`
       );
+    } else if (
+      requestBody.mediaType === MediaType.BOOK &&
+      !requestUser.hasPermission(
+        [Permission.REQUEST, Permission.REQUEST_BOOK],
+        {
+          type: 'or',
+        }
+      )
+    ) {
+      throw new RequestPermissionError(
+        `You do not have permission to make book requests.`
+      );
     }
 
     const quotas = await requestUser.getQuota();
@@ -109,29 +128,62 @@ export class MediaRequest {
       throw new QuotaRestrictedError('Movie Quota exceeded.');
     } else if (requestBody.mediaType === MediaType.TV && quotas.tv.restricted) {
       throw new QuotaRestrictedError('Series Quota exceeded.');
+    } else if (
+      requestBody.mediaType === MediaType.BOOK &&
+      quotas.book.restricted
+    ) {
+      throw new QuotaRestrictedError('Book Quota exceeded.');
     }
 
-    const tmdbMedia =
+    const tmdbOrHardcoverMedia =
       requestBody.mediaType === MediaType.MOVIE
         ? await tmdb.getMovie({ movieId: requestBody.mediaId })
-        : await tmdb.getTvShow({ tvId: requestBody.mediaId });
+        : requestBody.mediaType === MediaType.TV
+        ? await tmdb.getTvShow({ tvId: requestBody.mediaId })
+        : await hardcover.getBookByEditionID({
+            editionId: requestBody.mediaId,
+          });
+
+    const where: {
+      mediaType: MediaType;
+      tmdbId?: number;
+      hardcoverId?: number;
+    } = {
+      mediaType: requestBody.mediaType,
+    };
+
+    if (
+      requestBody.mediaType === MediaType.MOVIE ||
+      requestBody.mediaType === MediaType.TV
+    ) {
+      where.tmdbId = tmdbOrHardcoverMedia.id;
+    } else {
+      where.hardcoverId = tmdbOrHardcoverMedia.id;
+    }
 
     let media = await mediaRepository.findOne({
-      where: {
-        tmdbId: requestBody.mediaId,
-        mediaType: requestBody.mediaType,
-      },
+      where: where,
       relations: ['requests'],
     });
 
     if (!media) {
       media = new Media({
-        tmdbId: tmdbMedia.id,
-        tvdbId: requestBody.tvdbId ?? tmdbMedia.external_ids.tvdb_id,
+        tmdbId: tmdbOrHardcoverMedia.id,
+        hardcoverId: tmdbOrHardcoverMedia.id,
+        tvdbId:
+          requestBody.tvdbId ??
+          (tmdbOrHardcoverMedia.external_ids as TmdbExternalIds).tvdb_id,
         status: !requestBody.is4k ? MediaStatus.PENDING : MediaStatus.UNKNOWN,
         status4k: requestBody.is4k ? MediaStatus.PENDING : MediaStatus.UNKNOWN,
         mediaType: requestBody.mediaType,
       });
+
+      // TODO: figure out why this solves unique contraint with tvdbId
+      // if (requestBody.mediaType !== MediaType.BOOK) {
+      //   media.tvdbId =
+      //     requestBody.tvdbId ??
+      //     (tmdbOrHardcoverMedia.external_ids as TmdbExternalIds).tvdb_id;
+      // }
     } else {
       if (media.status === MediaStatus.UNKNOWN && !requestBody.is4k) {
         media.status = MediaStatus.PENDING;
@@ -147,7 +199,12 @@ export class MediaRequest {
       .leftJoin('request.media', 'media')
       .leftJoinAndSelect('request.requestedBy', 'user')
       .where('request.is4k = :is4k', { is4k: requestBody.is4k })
-      .andWhere('media.tmdbId = :tmdbId', { tmdbId: tmdbMedia.id })
+      .andWhere('media.tmdbId = :tmdbId', {
+        tmdbId: tmdbOrHardcoverMedia.id,
+      })
+      .orWhere('media.hardcoverId = :hardcoverId', {
+        hardcoverId: tmdbOrHardcoverMedia.id,
+      })
       .andWhere('media.mediaType = :mediaType', {
         mediaType: requestBody.mediaType,
       })
@@ -161,7 +218,7 @@ export class MediaRequest {
         existing[0].status !== MediaRequestStatus.COMPLETED
       ) {
         logger.warn('Duplicate request for media blocked', {
-          tmdbId: tmdbMedia.id,
+          tmdbId: tmdbOrHardcoverMedia.id,
           mediaType: requestBody.mediaType,
           is4k: requestBody.is4k,
           label: 'Media Request',
@@ -231,8 +288,8 @@ export class MediaRequest {
 
       await requestRepository.save(request);
       return request;
-    } else {
-      const tmdbMediaShow = tmdbMedia as Awaited<
+    } else if (requestBody.mediaType === MediaType.TV) {
+      const tmdbMediaShow = tmdbOrHardcoverMedia as Awaited<
         ReturnType<typeof tmdb.getTvShow>
       >;
       const requestedSeasons =
@@ -353,6 +410,40 @@ export class MediaRequest {
                 : MediaRequestStatus.PENDING,
             })
         ),
+        isAutoRequest: options.isAutoRequest ?? false,
+      });
+
+      await requestRepository.save(request);
+      return request;
+    } else {
+      await mediaRepository.save(media);
+
+      const request = new MediaRequest({
+        type: MediaType.BOOK,
+        media,
+        requestedBy: requestUser,
+        // If the user is an admin or has the "auto approve" permission, automatically approve the request
+        status: user.hasPermission(
+          [
+            Permission.AUTO_APPROVE,
+            Permission.AUTO_APPROVE_BOOK,
+            Permission.MANAGE_REQUESTS,
+          ],
+          { type: 'or' }
+        )
+          ? MediaRequestStatus.APPROVED
+          : MediaRequestStatus.PENDING,
+        modifiedBy: user.hasPermission(
+          [
+            Permission.AUTO_APPROVE,
+            Permission.AUTO_APPROVE_BOOK,
+            Permission.MANAGE_REQUESTS,
+          ],
+          { type: 'or' }
+        )
+          ? user
+          : undefined,
+        tags: requestBody.tags,
         isAutoRequest: options.isAutoRequest ?? false,
       });
 

@@ -29,7 +29,7 @@ const messages = defineMessages({
 
 interface QuotaDisplayProps {
   quota?: QuotaStatus;
-  mediaType: 'movie' | 'tv';
+  mediaType: 'movie' | 'tv' | 'book';
   userOverride?: number | null;
   remaining?: number;
   overLimit?: number;

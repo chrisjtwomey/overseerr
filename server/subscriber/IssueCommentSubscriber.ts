@@ -1,3 +1,4 @@
+import Hardcover from '@server/api/hardcover';
 import TheMovieDb from '@server/api/themoviedb';
 import { IssueType, IssueTypeName } from '@server/constants/issue';
 import { MediaType } from '@server/constants/media';
@@ -7,6 +8,7 @@ import Media from '@server/entity/Media';
 import { User } from '@server/entity/User';
 import notificationManager, { Notification } from '@server/lib/notifications';
 import { Permission } from '@server/lib/permissions';
+import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { sortBy } from 'lodash';
 import type { EntitySubscriberInterface, InsertEvent } from 'typeorm';
@@ -24,6 +26,10 @@ export class IssueCommentSubscriber
     let title: string;
     let image: string;
     const tmdb = new TheMovieDb();
+    const settings = getSettings();
+    const hardcover = new Hardcover({
+      token: settings.hardcover.token,
+    });
 
     try {
       const issue = (
@@ -48,13 +54,22 @@ export class IssueCommentSubscriber
           movie.release_date ? ` (${movie.release_date.slice(0, 4)})` : ''
         }`;
         image = `https://image.tmdb.org/t/p/w600_and_h900_bestv2${movie.poster_path}`;
-      } else {
+      } else if (media.mediaType == MediaType.TV) {
         const tvshow = await tmdb.getTvShow({ tvId: media.tmdbId });
 
         title = `${tvshow.name}${
           tvshow.first_air_date ? ` (${tvshow.first_air_date.slice(0, 4)})` : ''
         }`;
         image = `https://image.tmdb.org/t/p/w600_and_h900_bestv2${tvshow.poster_path}`;
+      } else {
+        const book = await hardcover.getBookByEditionID({
+          editionId: media.hardcoverId,
+        });
+
+        title = `${book.title}${
+          book.release_date ? ` (${book.release_date.slice(0, 4)})` : ''
+        }`;
+        image = book.image_url;
       }
 
       const [firstComment] = sortBy(issue.comments, 'id');

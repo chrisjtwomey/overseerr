@@ -9,6 +9,8 @@ const messages = defineMessages({
   menuUsers: 'Users',
   menuPlexSettings: 'Plex',
   menuServices: 'Services',
+  menuHardcoverSettings: 'Hardcover',
+  menuCalibreSettings: 'Calibre',
   menuNotifications: 'Notifications',
   menuLogs: 'Logs',
   menuJobs: 'Jobs & Cache',
@@ -37,6 +39,16 @@ const SettingsLayout = ({ children }: SettingsLayoutProps) => {
       text: intl.formatMessage(messages.menuPlexSettings),
       route: '/settings/plex',
       regex: /^\/settings\/plex/,
+    },
+    {
+      text: intl.formatMessage(messages.menuHardcoverSettings),
+      route: '/settings/hardcover',
+      regex: /^\/settings\/hardcover/,
+    },
+    {
+      text: intl.formatMessage(messages.menuCalibreSettings),
+      route: '/settings/calibre',
+      regex: /^\/settings\/calibre/,
     },
     {
       text: intl.formatMessage(messages.menuServices),

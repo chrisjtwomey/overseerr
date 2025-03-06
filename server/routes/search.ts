@@ -1,17 +1,42 @@
+import Hardcover from '@server/api/hardcover';
+import type {
+  HardcoverAuthor,
+  HardcoverBook,
+} from '@server/api/hardcover/interfaces';
 import TheMovieDb from '@server/api/themoviedb';
-import type { TmdbSearchMultiResponse } from '@server/api/themoviedb/interfaces';
+import type {
+  TmdbCollectionResult,
+  TmdbMovieResult,
+  TmdbPersonResult,
+  TmdbTvResult,
+} from '@server/api/themoviedb/interfaces';
 import Media from '@server/entity/Media';
 import { findSearchProvider } from '@server/lib/search';
+import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { mapSearchResults } from '@server/models/Search';
 import { Router } from 'express';
 
 const searchRoutes = Router();
 
+interface CombinedMultiResponse {
+  page: number;
+  total_results: number;
+  total_pages: number;
+  results: (
+    | TmdbMovieResult
+    | TmdbTvResult
+    | TmdbPersonResult
+    | TmdbCollectionResult
+    | HardcoverBook
+    | HardcoverAuthor
+  )[];
+}
+
 searchRoutes.get('/', async (req, res, next) => {
   const queryString = req.query.query as string;
   const searchProvider = findSearchProvider(queryString.toLowerCase());
-  let results: TmdbSearchMultiResponse;
+  let results: CombinedMultiResponse;
 
   try {
     if (searchProvider) {
@@ -25,12 +50,25 @@ searchRoutes.get('/', async (req, res, next) => {
       });
     } else {
       const tmdb = new TheMovieDb();
+      const settings = getSettings();
 
       results = await tmdb.searchMulti({
         query: queryString,
         page: Number(req.query.page),
         language: (req.query.language as string) ?? req.locale,
       });
+
+      if (settings.hardcover.token) {
+        const hardcover = new Hardcover({
+          token: settings.hardcover.token,
+        });
+        const hardCoverResults = await hardcover.searchMulti({
+          searchTerm: queryString,
+          page: Number(req.query.page),
+        });
+
+        results.results = results.results.concat(hardCoverResults.results);
+      }
     }
 
     const media = await Media.getRelatedMedia(

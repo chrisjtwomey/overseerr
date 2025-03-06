@@ -22,6 +22,8 @@ export const messages = defineMessages({
   requestTv: 'Request Series',
   requestTvDescription:
     'Grant permission to submit requests for non-4K series.',
+  requestBook: 'Request Books',
+  requestBookDescription: 'Grant permission to submit requests for books.',
   autoapprove: 'Auto-Approve',
   autoapproveDescription:
     'Grant automatic approval for all non-4K media requests.',
@@ -31,6 +33,8 @@ export const messages = defineMessages({
   autoapproveSeries: 'Auto-Approve Series',
   autoapproveSeriesDescription:
     'Grant automatic approval for non-4K series requests.',
+  autoapproveBook: 'Auto-Approve Books',
+  autoapproveBookDescription: 'Grant automatic approval for book requests.',
   autoapprove4k: 'Auto-Approve 4K',
   autoapprove4kDescription:
     'Grant automatic approval for all 4K media requests.',
@@ -155,6 +159,12 @@ export const PermissionEdit = ({
           description: intl.formatMessage(messages.requestTvDescription),
           permission: Permission.REQUEST_TV,
         },
+        {
+          id: 'request-book',
+          name: intl.formatMessage(messages.requestBook),
+          description: intl.formatMessage(messages.requestBookDescription),
+          permission: Permission.REQUEST_BOOK,
+        },
       ],
     },
     {
@@ -188,6 +198,18 @@ export const PermissionEdit = ({
           requires: [
             {
               permissions: [Permission.REQUEST, Permission.REQUEST_TV],
+              type: 'or',
+            },
+          ],
+        },
+        {
+          id: 'autoapprovebook',
+          name: intl.formatMessage(messages.autoapproveBook),
+          description: intl.formatMessage(messages.autoapproveBookDescription),
+          permission: Permission.AUTO_APPROVE_BOOK,
+          requires: [
+            {
+              permissions: [Permission.REQUEST, Permission.REQUEST_BOOK],
               type: 'or',
             },
           ],

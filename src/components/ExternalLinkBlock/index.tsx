@@ -1,3 +1,4 @@
+import HardcoverLogo from '@app/assets/services/hardcover.svg';
 import ImdbLogo from '@app/assets/services/imdb.svg';
 import PlexLogo from '@app/assets/services/plex.svg';
 import RTLogo from '@app/assets/services/rt.svg';
@@ -8,10 +9,11 @@ import useLocale from '@app/hooks/useLocale';
 import { MediaType } from '@server/constants/media';
 
 interface ExternalLinkBlockProps {
-  mediaType: 'movie' | 'tv';
+  mediaType: 'movie' | 'tv' | 'book';
   tmdbId?: number;
   tvdbId?: number;
   imdbId?: string;
+  hardcoverUrl?: string;
   rtUrl?: string;
   plexUrl?: string;
 }
@@ -21,6 +23,7 @@ const ExternalLinkBlock = ({
   tmdbId,
   tvdbId,
   imdbId,
+  hardcoverUrl,
   rtUrl,
   plexUrl,
 }: ExternalLinkBlockProps) => {
@@ -66,6 +69,16 @@ const ExternalLinkBlock = ({
           rel="noreferrer"
         >
           <ImdbLogo />
+        </a>
+      )}
+      {hardcoverUrl && (
+        <a
+          href={hardcoverUrl}
+          className="w-8 opacity-50 transition duration-300 hover:opacity-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <HardcoverLogo />
         </a>
       )}
       {rtUrl && (

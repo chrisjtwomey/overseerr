@@ -305,10 +305,10 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
         onCancel={() => setShowIssueModal(false)}
         show={showIssueModal}
         mediaType="tv"
-        tmdbId={data.id}
+        mediaId={data.id}
       />
       <RequestModal
-        tmdbId={data.id}
+        mediaId={data.id}
         show={showRequestModal}
         type="tv"
         onComplete={() => {
@@ -409,7 +409,7 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
           <RequestButton
             mediaType="tv"
             onUpdate={() => revalidate()}
-            tmdbId={data?.id}
+            mediaId={data?.id}
             media={data?.mediaInfo}
             isShowComplete={isComplete}
             is4kShowComplete={is4kComplete}

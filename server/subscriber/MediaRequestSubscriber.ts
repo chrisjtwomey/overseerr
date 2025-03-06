@@ -1,3 +1,5 @@
+import CalibreWebAPI from '@server/api/calibre';
+import Hardcover from '@server/api/hardcover';
 import type { RadarrMovieOptions } from '@server/api/servarr/radarr';
 import RadarrAPI from '@server/api/servarr/radarr';
 import type {
@@ -658,6 +660,153 @@ export class MediaRequestSubscriber
     }
   }
 
+  public async sendToCalibreWebDownloader(entity: MediaRequest): Promise<void> {
+    if (
+      entity.status === MediaRequestStatus.APPROVED &&
+      entity.type === MediaType.BOOK
+    ) {
+      try {
+        const mediaRepository = getRepository(Media);
+        const settings = getSettings();
+        if (!settings.calibreWeb) {
+          logger.info(
+            'No Calibre server configured, skipping request processing',
+            {
+              label: 'Media Request',
+              requestId: entity.id,
+              mediaId: entity.media.id,
+            }
+          );
+          return;
+        }
+
+        const hardcover = new Hardcover({
+          token: settings.hardcover.token,
+        });
+        const calibre = new CalibreWebAPI({
+          url: CalibreWebAPI.buildUrl(settings.calibreWeb),
+          apiKey: settings.calibreWeb.apiKey || '',
+          cacheName: 'calibreWeb',
+          apiName: 'calibreWeb',
+        });
+        const book = await hardcover.getBookByEditionID({
+          editionId: entity.media.hardcoverId,
+        });
+        const media = await mediaRepository.findOne({
+          where: { id: entity.media.id },
+        });
+
+        if (!media) {
+          logger.error('Media data not found', {
+            label: 'Media Request',
+            requestId: entity.id,
+            mediaId: entity.media.id,
+          });
+          return;
+        }
+
+        if (media.status === MediaStatus.AVAILABLE) {
+          logger.warn('Media already exists, marking request as APPROVED', {
+            label: 'Media Request',
+            requestId: entity.id,
+            mediaId: entity.media.id,
+          });
+          const requestRepository = getRepository(MediaRequest);
+          entity.status = MediaRequestStatus.APPROVED;
+          await requestRepository.save(entity);
+          return;
+        }
+
+        if (!book.identifier) {
+          logger.warn('Book identifier not found', {
+            label: 'Media Request',
+            requestId: entity.id,
+            mediaId: entity.media.id,
+          });
+          return;
+        }
+
+        try {
+          const calibreBook = await calibre.getBookByIdentifier(
+            book.identifier
+          );
+          if (calibreBook) {
+            logger.warn(
+              'Book already exists in Calibre, marking request as APPROVED',
+              {
+                label: 'Media Request',
+                requestId: entity.id,
+                mediaId: entity.media.id,
+              }
+            );
+
+            // If the book already exists in Calibre, we don't need to add it again
+            const requestRepository = getRepository(MediaRequest);
+            entity.status = MediaRequestStatus.APPROVED;
+            await requestRepository.save(entity);
+            return;
+          }
+        } catch {
+          calibre
+            .addBook(book.identifier)
+            .then(async () => {
+              const media = await mediaRepository.findOne({
+                where: { id: entity.media.id },
+              });
+
+              if (!media) {
+                throw new Error('Media data not found');
+              }
+
+              // media.externalServiceId = calibreBook.id;
+              // media.externalServiceSlug = calibreBook.title;
+              // media.serviceId = settings.calibre.id;
+              await mediaRepository.save(media);
+
+              logger.info('Sent request to Calibre', {
+                label: 'Media Request',
+                requestId: entity.id,
+                mediaId: entity.media.id,
+              });
+            })
+            .catch(async (e) => {
+              const requestRepository = getRepository(MediaRequest);
+
+              entity.status = MediaRequestStatus.FAILED;
+              requestRepository.save(entity);
+
+              logger.warn(
+                'Something went wrong sending book request to Calibre Web Downloader, marking status as FAILED',
+                {
+                  label: 'Media Request',
+                  requestId: entity.id,
+                  mediaId: entity.media.id,
+                  errorMessage: e.message,
+                }
+              );
+
+              MediaRequest.sendNotification(
+                entity,
+                media,
+                Notification.MEDIA_FAILED
+              );
+            });
+        }
+      } catch (e) {
+        logger.error(
+          'Something went wrong sending request to Calibre Web Downloader',
+          {
+            label: 'Media Request',
+            errorMessage: e.message,
+            requestId: entity.id,
+            mediaId: entity.media.id,
+          }
+        );
+        throw new Error(e.message);
+      }
+    }
+  }
+
   public async updateParentStatus(entity: MediaRequest): Promise<void> {
     const mediaRepository = getRepository(Media);
     const media = await mediaRepository.findOne({
@@ -760,6 +909,7 @@ export class MediaRequestSubscriber
 
     this.sendToRadarr(event.entity as MediaRequest);
     this.sendToSonarr(event.entity as MediaRequest);
+    this.sendToCalibreWebDownloader(event.entity as MediaRequest);
 
     this.updateParentStatus(event.entity as MediaRequest);
 
@@ -780,6 +930,7 @@ export class MediaRequestSubscriber
 
     this.sendToRadarr(event.entity as MediaRequest);
     this.sendToSonarr(event.entity as MediaRequest);
+    this.sendToCalibreWebDownloader(event.entity as MediaRequest);
 
     this.updateParentStatus(event.entity as MediaRequest);
   }

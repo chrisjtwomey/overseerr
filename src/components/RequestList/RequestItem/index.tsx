@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { MediaRequestStatus, MediaStatus } from '@server/constants/media';
 import type { MediaRequest } from '@server/entity/MediaRequest';
+import type { BookDetails } from '@server/models/Book';
 import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
@@ -42,10 +43,6 @@ const messages = defineMessages({
   tvdbid: 'TheTVDB ID',
   unknowntitle: 'Unknown Title',
 });
-
-const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
-  return (movie as MovieDetails).title !== undefined;
-};
 
 interface RequestItemErrorProps {
   requestData?: MediaRequest;
@@ -287,8 +284,11 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
   const url =
     request.type === 'movie'
       ? `/api/v1/movie/${request.media.tmdbId}`
-      : `/api/v1/tv/${request.media.tmdbId}`;
-  const { data: title, error } = useSWR<MovieDetails | TvDetails>(
+      : request.type === 'tv'
+      ? `/api/v1/tv/${request.media.tmdbId}`
+      : `api/v1/book/${request.media.tmdbId}`;
+
+  const { data: title, error } = useSWR<MovieDetails | TvDetails | BookDetails>(
     inView ? url : null
   );
   const { data: requestData, mutate: revalidate } = useSWR<MediaRequest>(
@@ -368,7 +368,7 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
     <>
       <RequestModal
         show={showEditModal}
-        tmdbId={request.media.tmdbId}
+        mediaId={request.media.tmdbId}
         type={request.type}
         is4k={request.is4k}
         editRequest={request}
@@ -402,14 +402,16 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
               href={
                 requestData.type === 'movie'
                   ? `/movie/${requestData.media.tmdbId}`
-                  : `/tv/${requestData.media.tmdbId}`
+                  : requestData.type === 'tv'
+                  ? `/tv/${requestData.media.tmdbId}`
+                  : `/book/${requestData.media.tmdbId}`
               }
             >
               <a className="relative h-auto w-12 flex-shrink-0 scale-100 transform-gpu overflow-hidden rounded-md transition duration-300 hover:scale-105">
                 <CachedImage
                   src={
                     title.posterPath
-                      ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${title.posterPath}`
+                      ? `${title.posterPath}`
                       : '/images/overseerr_poster_not_found.png'
                   }
                   alt=""
@@ -422,7 +424,9 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
             </Link>
             <div className="flex flex-col justify-center overflow-hidden pl-2 xl:pl-4">
               <div className="pt-0.5 text-xs font-medium text-white sm:pt-1">
-                {(isMovie(title)
+                {(title.type === 'movie'
+                  ? title.releaseDate
+                  : title.type === 'book'
                   ? title.releaseDate
                   : title.firstAirDate
                 )?.slice(0, 4)}
@@ -431,14 +435,20 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
                 href={
                   requestData.type === 'movie'
                     ? `/movie/${requestData.media.tmdbId}`
-                    : `/tv/${requestData.media.tmdbId}`
+                    : requestData.type === 'tv'
+                    ? `/tv/${requestData.media.tmdbId}`
+                    : `/book/${requestData.media.tmdbId}`
                 }
               >
                 <a className="mr-2 min-w-0 truncate text-lg font-bold text-white hover:underline xl:text-xl">
-                  {isMovie(title) ? title.title : title.name}
+                  {title.type === 'movie'
+                    ? title.title
+                    : title.type === 'tv'
+                    ? title.name
+                    : title.title}
                 </a>
               </Link>
-              {!isMovie(title) && request.seasons.length > 0 && (
+              {title.type === 'tv' && request.seasons.length > 0 && (
                 <div className="card-field">
                   <span className="card-field-name">
                     {intl.formatMessage(messages.seasons, {
@@ -498,7 +508,13 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
                       requestData.is4k ? 'downloadStatus4k' : 'downloadStatus'
                     ]
                   }
-                  title={isMovie(title) ? title.title : title.name}
+                  title={
+                    title.type === 'movie'
+                      ? title.title
+                      : title.type === 'tv'
+                      ? title.name
+                      : title.title
+                  }
                   inProgress={
                     (
                       requestData.media[

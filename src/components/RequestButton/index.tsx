@@ -44,16 +44,16 @@ interface ButtonOption {
 }
 
 interface RequestButtonProps {
-  mediaType: 'movie' | 'tv';
+  mediaType: 'movie' | 'tv' | 'book';
   onUpdate: () => void;
-  tmdbId: number;
+  mediaId: number;
   media?: Media;
   isShowComplete?: boolean;
   is4kShowComplete?: boolean;
 }
 
 const RequestButton = ({
-  tmdbId,
+  mediaId,
   onUpdate,
   media,
   mediaType,
@@ -144,7 +144,7 @@ const RequestButton = ({
     if (
       activeRequest &&
       hasPermission(Permission.MANAGE_REQUESTS) &&
-      mediaType === 'movie'
+      (mediaType === 'movie' || mediaType === 'book')
     ) {
       buttons.push(
         {
@@ -275,7 +275,9 @@ const RequestButton = ({
         Permission.REQUEST,
         mediaType === 'movie'
           ? Permission.REQUEST_MOVIE
-          : Permission.REQUEST_TV,
+          : mediaType === 'tv'
+          ? Permission.REQUEST_TV
+          : Permission.REQUEST_BOOK,
       ],
       { type: 'or' }
     )
@@ -365,7 +367,7 @@ const RequestButton = ({
   return (
     <>
       <RequestModal
-        tmdbId={tmdbId}
+        mediaId={mediaId}
         show={showRequestModal}
         type={mediaType}
         editRequest={editRequest ? activeRequest : undefined}
@@ -376,7 +378,7 @@ const RequestButton = ({
         onCancel={() => setShowRequestModal(false)}
       />
       <RequestModal
-        tmdbId={tmdbId}
+        mediaId={mediaId}
         show={showRequest4kModal}
         type={mediaType}
         editRequest={editRequest ? active4kRequest : undefined}

@@ -18,6 +18,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { MediaRequestStatus, MediaStatus } from '@server/constants/media';
 import type { MediaRequest } from '@server/entity/MediaRequest';
+import type { BookDetails } from '@server/models/Book';
 import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
@@ -41,10 +42,6 @@ const messages = defineMessages({
   deleterequest: 'Delete Request',
   unknowntitle: 'Unknown Title',
 });
-
-const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
-  return (movie as MovieDetails).title !== undefined;
-};
 
 const RequestCardPlaceholder = () => {
   return (
@@ -95,7 +92,9 @@ const RequestCardError = ({ requestData }: RequestCardErrorProps) => {
                   requestData?.type
                     ? requestData?.type === 'movie'
                       ? globalMessages.movie
-                      : globalMessages.tvshow
+                      : requestData?.type === 'tv'
+                      ? globalMessages.tvshow
+                      : globalMessages.book
                     : globalMessages.request
                 ),
               })}
@@ -206,7 +205,10 @@ const RequestCardError = ({ requestData }: RequestCardErrorProps) => {
 
 interface RequestCardProps {
   request: MediaRequest;
-  onTitleData?: (requestId: number, title: MovieDetails | TvDetails) => void;
+  onTitleData?: (
+    requestId: number,
+    title: MovieDetails | TvDetails | BookDetails
+  ) => void;
 }
 
 const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
@@ -221,9 +223,11 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
   const url =
     request.type === 'movie'
       ? `/api/v1/movie/${request.media.tmdbId}`
-      : `/api/v1/tv/${request.media.tmdbId}`;
+      : request.type === 'tv'
+      ? `/api/v1/tv/${request.media.tmdbId}`
+      : `/api/v1/book/${request.media.hardcoverId}`;
 
-  const { data: title, error } = useSWR<MovieDetails | TvDetails>(
+  const { data: title, error } = useSWR<MovieDetails | TvDetails | BookDetails>(
     inView ? `${url}` : null
   );
   const {
@@ -308,7 +312,7 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
     <>
       <RequestModal
         show={showEditModal}
-        tmdbId={request.media.tmdbId}
+        mediaId={request.media.tmdbId}
         type={request.type}
         is4k={request.is4k}
         editRequest={request}
@@ -344,20 +348,28 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
           data-testid="request-card-title"
         >
           <div className="hidden text-xs font-medium text-white sm:flex">
-            {(isMovie(title) ? title.releaseDate : title.firstAirDate)?.slice(
-              0,
-              4
-            )}
+            {(title.type === 'movie'
+              ? title.releaseDate
+              : title.type === 'tv'
+              ? title.firstAirDate
+              : title.releaseDate
+            )?.slice(0, 4)}
           </div>
           <Link
             href={
               request.type === 'movie'
                 ? `/movie/${requestData.media.tmdbId}`
-                : `/tv/${requestData.media.tmdbId}`
+                : request.type === 'tv'
+                ? `/tv/${requestData.media.tmdbId}`
+                : `/book/${requestData.media.tmdbId}`
             }
           >
             <a className="overflow-hidden overflow-ellipsis whitespace-nowrap text-base font-bold text-white hover:underline sm:text-lg">
-              {isMovie(title) ? title.title : title.name}
+              {title.type === 'movie'
+                ? title.title
+                : title.type === 'tv'
+                ? title.name
+                : title.title}
             </a>
           </Link>
           {hasPermission(
@@ -379,7 +391,7 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
               </Link>
             </div>
           )}
-          {!isMovie(title) && request.seasons.length > 0 && (
+          {title.type === 'tv' && request.seasons.length > 0 && (
             <div className="my-0.5 hidden items-center text-sm sm:my-1 sm:flex">
               <span className="mr-2 font-bold ">
                 {intl.formatMessage(messages.seasons, {
@@ -436,7 +448,13 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
                     requestData.is4k ? 'downloadStatus4k' : 'downloadStatus'
                   ]
                 }
-                title={isMovie(title) ? title.title : title.name}
+                title={
+                  title.type === 'movie'
+                    ? title.title
+                    : title.type === 'tv'
+                    ? title.name
+                    : title.title
+                }
                 inProgress={
                   (
                     requestData.media[
@@ -585,14 +603,16 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
           href={
             request.type === 'movie'
               ? `/movie/${requestData.media.tmdbId}`
-              : `/tv/${requestData.media.tmdbId}`
+              : request.type === 'tv'
+              ? `/tv/${requestData.media.tmdbId}`
+              : `/book/${requestData.media.hardcoverId}`
           }
         >
           <a className="w-20 flex-shrink-0 scale-100 transform-gpu cursor-pointer overflow-hidden rounded-md shadow-sm transition duration-300 hover:scale-105 hover:shadow-md sm:w-28">
             <CachedImage
               src={
                 title.posterPath
-                  ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${title.posterPath}`
+                  ? `${title.posterPath}`
                   : '/images/overseerr_poster_not_found.png'
               }
               alt=""

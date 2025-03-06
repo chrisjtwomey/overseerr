@@ -98,7 +98,9 @@ const useDiscover = <
   if (settings.currentSettings.hideAvailable && hideAvailable) {
     titles = titles.filter(
       (i) =>
-        (i.mediaType === 'movie' || i.mediaType === 'tv') &&
+        (i.mediaType === 'movie' ||
+          i.mediaType === 'tv' ||
+          i.mediaType === 'book') &&
         i.mediaInfo?.status !== MediaStatus.AVAILABLE &&
         i.mediaInfo?.status !== MediaStatus.PARTIALLY_AVAILABLE
     );

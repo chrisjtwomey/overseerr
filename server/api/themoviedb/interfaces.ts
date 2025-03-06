@@ -1,3 +1,5 @@
+import type { EntityDetails } from '@server/models/common';
+
 interface TmdbMediaResult {
   id: number;
   media_type: string;
@@ -137,7 +139,8 @@ export interface TmdbProductionCompany {
   description?: string;
 }
 
-export interface TmdbMovieDetails {
+export interface TmdbMovieDetails extends EntityDetails {
+  type: 'movie';
   id: number;
   imdb_id?: string;
   adult: boolean;
@@ -233,7 +236,8 @@ export interface TmdbTvSeasonResult {
   season_number: number;
 }
 
-export interface TmdbTvDetails {
+export interface TmdbTvDetails extends EntityDetails {
+  type: 'tv';
   id: number;
   backdrop_path?: string;
   content_ratings: TmdbTvRatingResult;
@@ -284,7 +288,6 @@ export interface TmdbTvDetails {
   seasons: TmdbTvSeasonResult[];
   status: string;
   tagline?: string;
-  type: string;
   vote_average: number;
   vote_count: number;
   aggregate_credits: {

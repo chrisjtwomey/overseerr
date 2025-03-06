@@ -29,7 +29,13 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'formatjs/no-offset': 'error',
     'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['error'],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      },
+    ],
     '@typescript-eslint/array-type': ['error', { default: 'array' }],
     'jsx-a11y/no-onchange': 'off',
     '@typescript-eslint/consistent-type-imports': [

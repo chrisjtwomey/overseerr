@@ -282,7 +282,7 @@ const MovieDetails = ({ movie }: MovieDetailsProps) => {
         onCancel={() => setShowIssueModal(false)}
         show={showIssueModal}
         mediaType="movie"
-        tmdbId={data.id}
+        mediaId={data.id}
       />
       <ManageSlideOver
         data={data}
@@ -376,7 +376,7 @@ const MovieDetails = ({ movie }: MovieDetailsProps) => {
           <RequestButton
             mediaType="movie"
             media={data.mediaInfo}
-            tmdbId={data.id}
+            mediaId={data.id}
             onUpdate={() => revalidate()}
           />
           {(data.mediaInfo?.status === MediaStatus.AVAILABLE ||

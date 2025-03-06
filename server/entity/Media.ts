@@ -1,3 +1,4 @@
+import CalibreWebAPI from '@server/api/calibre';
 import RadarrAPI from '@server/api/servarr/radarr';
 import SonarrAPI from '@server/api/servarr/sonarr';
 import { MediaStatus, MediaType } from '@server/constants/media';
@@ -24,20 +25,20 @@ import Season from './Season';
 @Entity()
 class Media {
   public static async getRelatedMedia(
-    tmdbIds: number | number[]
+    mediaIds: number | number[]
   ): Promise<Media[]> {
     const mediaRepository = getRepository(Media);
 
     try {
       let finalIds: number[];
-      if (!Array.isArray(tmdbIds)) {
-        finalIds = [tmdbIds];
+      if (!Array.isArray(mediaIds)) {
+        finalIds = [mediaIds];
       } else {
-        finalIds = tmdbIds;
+        finalIds = mediaIds;
       }
 
       const media = await mediaRepository.find({
-        where: { tmdbId: In(finalIds) },
+        where: [{ tmdbId: In(finalIds) }, { hardcoverId: In(finalIds) }],
       });
 
       return media;
@@ -55,7 +56,10 @@ class Media {
 
     try {
       const media = await mediaRepository.findOne({
-        where: { tmdbId: id, mediaType },
+        where: [
+          { tmdbId: id, mediaType },
+          { hardcoverId: id, mediaType },
+        ],
         relations: { requests: true, issues: true },
       });
 
@@ -72,17 +76,22 @@ class Media {
   @Column({ type: 'varchar' })
   public mediaType: MediaType;
 
-  @Column()
+  @Column({ nullable: true })
   @Index()
   public tmdbId: number;
 
-  @Column({ unique: true, nullable: true })
+  // TODO: figure out why unique constraint needed to be removed
+  @Column({ nullable: true })
   @Index()
   public tvdbId?: number;
 
   @Column({ nullable: true })
   @Index()
   public imdbId?: string;
+
+  @Column({ nullable: true })
+  @Index()
+  public hardcoverId: number;
 
   @Column({ type: 'int', default: MediaStatus.UNKNOWN })
   public status: MediaStatus;
@@ -140,6 +149,9 @@ class Media {
   @Column({ nullable: true, type: 'varchar' })
   public ratingKey4k?: string | null;
 
+  @Column({ nullable: true, type: 'int' })
+  public calibreBookId?: number | null;
+
   public serviceUrl?: string;
   public serviceUrl4k?: string;
   public downloadStatus?: DownloadingItem[] = [];
@@ -147,6 +159,8 @@ class Media {
 
   public plexUrl?: string;
   public plexUrl4k?: string;
+
+  public calibreWebUrl?: string;
 
   public iOSPlexUrl?: string;
   public iOSPlexUrl4k?: string;
@@ -189,6 +203,16 @@ class Media {
       if (tautulliUrl) {
         this.tautulliUrl4k = `${tautulliUrl}/info?rating_key=${this.ratingKey4k}`;
       }
+    }
+  }
+
+  @AfterLoad()
+  public setCalibreWebUrls(): void {
+    const settings = getSettings();
+    const calibreWebUrl = CalibreWebAPI.buildUrl(settings.calibreWeb);
+
+    if (this.calibreBookId) {
+      this.calibreWebUrl = `${calibreWebUrl}/book/${this.calibreBookId}`;
     }
   }
 

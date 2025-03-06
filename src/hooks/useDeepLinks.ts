@@ -5,6 +5,7 @@ interface useDeepLinksProps {
   plexUrl4k?: string;
   iOSPlexUrl?: string;
   iOSPlexUrl4k?: string;
+  calibreWebUrl?: string;
 }
 
 const useDeepLinks = ({
@@ -12,9 +13,12 @@ const useDeepLinks = ({
   plexUrl4k,
   iOSPlexUrl,
   iOSPlexUrl4k,
+  calibreWebUrl,
 }: useDeepLinksProps) => {
   const [returnedPlexUrl, setReturnedPlexUrl] = useState(plexUrl);
   const [returnedPlexUrl4k, setReturnedPlexUrl4k] = useState(plexUrl4k);
+  const [returnedCalibreWebUrl, setReturnedCalibreWebUrl] =
+    useState(calibreWebUrl);
 
   useEffect(() => {
     if (
@@ -27,9 +31,15 @@ const useDeepLinks = ({
       setReturnedPlexUrl(plexUrl);
       setReturnedPlexUrl4k(plexUrl4k);
     }
-  }, [iOSPlexUrl, iOSPlexUrl4k, plexUrl, plexUrl4k]);
 
-  return { plexUrl: returnedPlexUrl, plexUrl4k: returnedPlexUrl4k };
+    setReturnedCalibreWebUrl(calibreWebUrl);
+  }, [iOSPlexUrl, iOSPlexUrl4k, plexUrl, plexUrl4k, calibreWebUrl]);
+
+  return {
+    plexUrl: returnedPlexUrl,
+    plexUrl4k: returnedPlexUrl4k,
+    calibreWebUrl: returnedCalibreWebUrl,
+  };
 };
 
 export default useDeepLinks;

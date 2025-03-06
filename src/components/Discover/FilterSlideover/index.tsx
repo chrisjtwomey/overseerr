@@ -35,7 +35,9 @@ const messages = defineMessages({
   ratingText: 'Ratings between {minValue} and {maxValue}',
   clearfilters: 'Clear Active Filters',
   tmdbuserscore: 'TMDB User Score',
+  hardcoveruserscore: 'Hardcover User Score',
   tmdbuservotecount: 'TMDB User Vote Count',
+  hardcovervotecount: 'Hardcover User Vote Count',
   runtime: 'Runtime',
   streamingservices: 'Streaming Services',
   voteCount: 'Number of votes between {minValue} and {maxValue}',
@@ -44,7 +46,7 @@ const messages = defineMessages({
 type FilterSlideoverProps = {
   show: boolean;
   onClose: () => void;
-  type: 'movie' | 'tv';
+  type: 'movie' | 'tv' | 'book';
   currentFilters: FilterOptions;
 };
 
@@ -60,9 +62,17 @@ const FilterSlideover = ({
   const batchUpdateQueryParams = useBatchUpdateQueryParams({});
 
   const dateGte =
-    type === 'movie' ? 'primaryReleaseDateGte' : 'firstAirDateGte';
+    type === 'movie'
+      ? 'primaryReleaseDateGte'
+      : type === 'tv'
+      ? 'firstAirDateGte'
+      : 'releaseDateGte';
   const dateLte =
-    type === 'movie' ? 'primaryReleaseDateLte' : 'firstAirDateLte';
+    type === 'movie'
+      ? 'primaryReleaseDateLte'
+      : type === 'tv'
+      ? 'firstAirDateLte'
+      : 'releaseDateLte';
 
   return (
     <SlideOver
@@ -77,7 +87,9 @@ const FilterSlideover = ({
         <div>
           <div className="mb-2 text-lg font-semibold">
             {intl.formatMessage(
-              type === 'movie' ? messages.releaseDate : messages.firstAirDate
+              type === 'movie' || type === 'book'
+                ? messages.releaseDate
+                : messages.firstAirDate
             )}
           </div>
           <div className="relative z-40 flex space-x-2">
@@ -170,47 +182,55 @@ const FilterSlideover = ({
             updateQueryParams('language', value);
           }}
         />
+        {type !== 'book' && (
+          <>
+            <span className="text-lg font-semibold">
+              {intl.formatMessage(messages.runtime)}
+            </span>
+            <div className="relative z-0">
+              <MultiRangeSlider
+                min={0}
+                max={400}
+                onUpdateMin={(min) => {
+                  updateQueryParams(
+                    'withRuntimeGte',
+                    min !== 0 && Number(currentFilters.withRuntimeLte) !== 400
+                      ? min.toString()
+                      : undefined
+                  );
+                }}
+                onUpdateMax={(max) => {
+                  updateQueryParams(
+                    'withRuntimeLte',
+                    max !== 400 && Number(currentFilters.withRuntimeGte) !== 0
+                      ? max.toString()
+                      : undefined
+                  );
+                }}
+                defaultMaxValue={
+                  currentFilters.withRuntimeLte
+                    ? Number(currentFilters.withRuntimeLte)
+                    : undefined
+                }
+                defaultMinValue={
+                  currentFilters.withRuntimeGte
+                    ? Number(currentFilters.withRuntimeGte)
+                    : undefined
+                }
+                subText={intl.formatMessage(messages.runtimeText, {
+                  minValue: currentFilters.withRuntimeGte ?? 0,
+                  maxValue: currentFilters.withRuntimeLte ?? 400,
+                })}
+              />
+            </div>
+          </>
+        )}
         <span className="text-lg font-semibold">
-          {intl.formatMessage(messages.runtime)}
-        </span>
-        <div className="relative z-0">
-          <MultiRangeSlider
-            min={0}
-            max={400}
-            onUpdateMin={(min) => {
-              updateQueryParams(
-                'withRuntimeGte',
-                min !== 0 && Number(currentFilters.withRuntimeLte) !== 400
-                  ? min.toString()
-                  : undefined
-              );
-            }}
-            onUpdateMax={(max) => {
-              updateQueryParams(
-                'withRuntimeLte',
-                max !== 400 && Number(currentFilters.withRuntimeGte) !== 0
-                  ? max.toString()
-                  : undefined
-              );
-            }}
-            defaultMaxValue={
-              currentFilters.withRuntimeLte
-                ? Number(currentFilters.withRuntimeLte)
-                : undefined
-            }
-            defaultMinValue={
-              currentFilters.withRuntimeGte
-                ? Number(currentFilters.withRuntimeGte)
-                : undefined
-            }
-            subText={intl.formatMessage(messages.runtimeText, {
-              minValue: currentFilters.withRuntimeGte ?? 0,
-              maxValue: currentFilters.withRuntimeLte ?? 400,
-            })}
-          />
-        </div>
-        <span className="text-lg font-semibold">
-          {intl.formatMessage(messages.tmdbuserscore)}
+          {intl.formatMessage(
+            type === 'book'
+              ? messages.hardcoveruserscore
+              : messages.tmdbuserscore
+          )}
         </span>
         <div className="relative z-0">
           <MultiRangeSlider
@@ -249,7 +269,11 @@ const FilterSlideover = ({
           />
         </div>
         <span className="text-lg font-semibold">
-          {intl.formatMessage(messages.tmdbuservotecount)}
+          {intl.formatMessage(
+            type === 'book'
+              ? messages.hardcovervotecount
+              : messages.tmdbuservotecount
+          )}
         </span>
         <div className="relative z-0">
           <MultiRangeSlider
@@ -287,30 +311,35 @@ const FilterSlideover = ({
             })}
           />
         </div>
-        <span className="text-lg font-semibold">
-          {intl.formatMessage(messages.streamingservices)}
-        </span>
-        <WatchProviderSelector
-          type={type}
-          region={currentFilters.watchRegion}
-          activeProviders={
-            currentFilters.watchProviders?.split('|').map((v) => Number(v)) ??
-            []
-          }
-          onChange={(region, providers) => {
-            if (providers.length) {
-              batchUpdateQueryParams({
-                watchRegion: region,
-                watchProviders: providers.join('|'),
-              });
-            } else {
-              batchUpdateQueryParams({
-                watchRegion: undefined,
-                watchProviders: undefined,
-              });
-            }
-          }}
-        />
+        {type !== 'book' && (
+          <>
+            <span className="text-lg font-semibold">
+              {intl.formatMessage(messages.streamingservices)}
+            </span>
+            <WatchProviderSelector
+              type={type}
+              region={currentFilters.watchRegion}
+              activeProviders={
+                currentFilters.watchProviders
+                  ?.split('|')
+                  .map((v) => Number(v)) ?? []
+              }
+              onChange={(region, providers) => {
+                if (providers.length) {
+                  batchUpdateQueryParams({
+                    watchRegion: region,
+                    watchProviders: providers.join('|'),
+                  });
+                } else {
+                  batchUpdateQueryParams({
+                    watchRegion: undefined,
+                    watchProviders: undefined,
+                  });
+                }
+              }}
+            />
+          </>
+        )}
         <div className="pt-4">
           <Button
             className="w-full"

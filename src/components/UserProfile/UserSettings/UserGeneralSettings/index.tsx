@@ -2,6 +2,7 @@ import Badge from '@app/components/Common/Badge';
 import Button from '@app/components/Common/Button';
 import LoadingSpinner from '@app/components/Common/LoadingSpinner';
 import PageTitle from '@app/components/Common/PageTitle';
+import SensitiveInput from '@app/components/Common/SensitiveInput';
 import LanguageSelector from '@app/components/LanguageSelector';
 import QuotaSelector from '@app/components/QuotaSelector';
 import RegionSelector from '@app/components/RegionSelector';
@@ -14,6 +15,7 @@ import globalMessages from '@app/i18n/globalMessages';
 import Error from '@app/pages/_error';
 import { ArrowDownOnSquareIcon } from '@heroicons/react/24/outline';
 import type { UserSettingsGeneralResponse } from '@server/interfaces/api/userSettingsInterfaces';
+import type { CalibreWebSettings } from '@server/lib/settings';
 import axios from 'axios';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
@@ -48,6 +50,12 @@ const messages = defineMessages({
   discordId: 'Discord User ID',
   discordIdTip:
     'The <FindDiscordIdLink>multi-digit ID number</FindDiscordIdLink> associated with your Discord user account',
+  calibreAPIKey: 'Calibre Web API Key',
+  calibreAPIKeyTip:
+    'The API key for your <CalibreWebProfileLink>Calibre Web profile</CalibreWebProfileLink>',
+  autoSendAvailableRequestedBooks: 'Send Books to your eReader',
+  autoSendAvailableRequestedBooksTip:
+    'Automatically send your requested books to your eReader when they become available',
   validationDiscordId: 'You must provide a valid Discord user ID',
   plexwatchlistsyncmovies: 'Auto-Request Movies',
   plexwatchlistsyncmoviestip:
@@ -80,6 +88,9 @@ const UserGeneralSettings = () => {
   } = useSWR<UserSettingsGeneralResponse>(
     user ? `/api/v1/user/${user?.id}/settings/main` : null
   );
+  const { data: calibreWebData } = useSWR<CalibreWebSettings>(
+    '/api/v1/settings/calibreweb'
+  );
 
   const UserGeneralSettingsSchema = Yup.object().shape({
     discordId: Yup.string()
@@ -96,11 +107,11 @@ const UserGeneralSettings = () => {
     );
   }, [data]);
 
-  if (!data && !error) {
+  if (!data && !error && !calibreWebData) {
     return <LoadingSpinner />;
   }
 
-  if (!data) {
+  if (!data || !calibreWebData) {
     return <Error statusCode={500} />;
   }
 
@@ -121,6 +132,9 @@ const UserGeneralSettings = () => {
         initialValues={{
           displayName: data?.username,
           discordId: data?.discordId,
+          calibreAPIKey: data?.calibreAPIKey,
+          autoSendAvailableRequestedBooks:
+            data?.autoSendAvailableRequestedBooks ?? false,
           locale: data?.locale,
           region: data?.region,
           originalLanguage: data?.originalLanguage,
@@ -138,6 +152,9 @@ const UserGeneralSettings = () => {
             await axios.post(`/api/v1/user/${user?.id}/settings/main`, {
               username: values.displayName,
               discordId: values.discordId,
+              calibreAPIKey: values.calibreAPIKey,
+              autoSendAvailableRequestedBooks:
+                values.autoSendAvailableRequestedBooks,
               locale: values.locale,
               region: values.region,
               originalLanguage: values.originalLanguage,
@@ -266,6 +283,83 @@ const UserGeneralSettings = () => {
                     typeof errors.discordId === 'string' && (
                       <div className="error">{errors.discordId}</div>
                     )}
+                </div>
+              </div>
+              <div className="form-row">
+                <label htmlFor="calibreAPIKey" className="text-label">
+                  {intl.formatMessage(messages.calibreAPIKey)}
+                  {currentUser?.id === user?.id && (
+                    <span className="label-tip">
+                      {intl.formatMessage(messages.calibreAPIKeyTip, {
+                        CalibreWebProfileLink: (msg: React.ReactNode) => (
+                          <a
+                            href={`${
+                              calibreWebData.useSsl ? 'https' : 'http'
+                            }://${calibreWebData.hostname}:${
+                              calibreWebData.port
+                            }${calibreWebData.urlBase ?? ''}/me`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {msg}
+                          </a>
+                        ),
+                      })}
+                    </span>
+                  )}
+                </label>
+                <div className="form-input-area">
+                  <div className="form-input-field">
+                    <SensitiveInput
+                      as="field"
+                      id="calibreAPIKey"
+                      name="calibreAPIKey"
+                      autoComplete="one-time-code"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setFieldValue('calibreAPIKey', e.target.value);
+                      }}
+                    />
+                  </div>
+                  {errors.calibreAPIKey &&
+                    touched.calibreAPIKey &&
+                    typeof errors.calibreAPIKey === 'string' && (
+                      <div className="error">{errors.calibreAPIKey}</div>
+                    )}
+                </div>
+              </div>
+              <div className="form-row">
+                <label
+                  htmlFor="autoSendAvailableRequestedBooks"
+                  className="text-label"
+                >
+                  <span>
+                    {intl.formatMessage(
+                      messages.autoSendAvailableRequestedBooks
+                    )}
+                  </span>
+                  <span className="label-tip">
+                    {intl.formatMessage(
+                      messages.autoSendAvailableRequestedBooksTip
+                    )}
+                  </span>
+                </label>
+                <div className="form-input-area">
+                  <div className="flex flex-col">
+                    <div className="mb-4 flex items-center">
+                      <input
+                        id="autoSendAvailableRequestedBooks"
+                        name="autoSendAvailableRequestedBooks"
+                        type="checkbox"
+                        checked={values.autoSendAvailableRequestedBooks}
+                        onChange={() => {
+                          setFieldValue(
+                            'autoSendAvailableRequestedBooks',
+                            !values.autoSendAvailableRequestedBooks
+                          );
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="form-row">

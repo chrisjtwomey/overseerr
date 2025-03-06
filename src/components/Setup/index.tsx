@@ -4,6 +4,8 @@ import Button from '@app/components/Common/Button';
 import ImageFader from '@app/components/Common/ImageFader';
 import PageTitle from '@app/components/Common/PageTitle';
 import LanguagePicker from '@app/components/Layout/LanguagePicker';
+import SettingsCalibreWeb from '@app/components/Settings/SettingsCalibre';
+import SettingsHardcover from '@app/components/Settings/SettingsHardcover';
 import SettingsPlex from '@app/components/Settings/SettingsPlex';
 import SettingsServices from '@app/components/Settings/SettingsServices';
 import LoginWithPlex from '@app/components/Setup/LoginWithPlex';
@@ -23,6 +25,8 @@ const messages = defineMessages({
   loginwithplex: 'Sign in with Plex',
   configureplex: 'Configure Plex',
   configureservices: 'Configure Services',
+  configurehardcover: 'Configure Hardcover',
+  configurecalibre: 'Configure Calibre',
   tip: 'Tip',
   scanbackground:
     'Scanning will run in the background. You can continue the setup process in the meantime.',
@@ -33,6 +37,13 @@ const Setup = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [plexSettingsComplete, setPlexSettingsComplete] = useState(false);
+  const [hardcoverSettingsComplete, setHardcoverSettingsComplete] =
+    useState(false);
+  const [calibreSettingsComplete, setCalibreSettingsComplete] = useState(false);
+  const [
+    calibreDownloaderSettingsComplete,
+    setCalibreDownloaderSettingsComplete,
+  ] = useState(false);
   const router = useRouter();
   const { locale } = useLocale();
 
@@ -98,6 +109,18 @@ const Setup = () => {
               stepNumber={3}
               description={intl.formatMessage(messages.configureservices)}
               active={currentStep === 3}
+              completed={currentStep > 3}
+            />
+            <SetupSteps
+              stepNumber={4}
+              description={intl.formatMessage(messages.configurehardcover)}
+              active={currentStep === 4}
+              completed={currentStep > 4}
+            />
+            <SetupSteps
+              stepNumber={5}
+              description={intl.formatMessage(messages.configurecalibre)}
+              active={currentStep === 5}
               isLastStep
             />
           </ul>
@@ -138,8 +161,55 @@ const Setup = () => {
                   <span className="ml-3 inline-flex rounded-md shadow-sm">
                     <Button
                       buttonType="primary"
-                      onClick={() => finishSetup()}
+                      onClick={() => setCurrentStep(4)}
                       disabled={isUpdating}
+                    >
+                      {intl.formatMessage(messages.continue)}
+                    </Button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          {currentStep === 4 && (
+            <div>
+              <SettingsHardcover
+                onComplete={() => setHardcoverSettingsComplete(true)}
+              />
+              <div className="actions">
+                <div className="flex justify-end">
+                  <span className="ml-3 inline-flex rounded-md shadow-sm">
+                    <Button
+                      buttonType="primary"
+                      onClick={() => setCurrentStep(5)}
+                      disabled={!hardcoverSettingsComplete}
+                    >
+                      {intl.formatMessage(messages.continue)}
+                    </Button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          {currentStep === 5 && (
+            <div>
+              <SettingsCalibreWeb
+                onCalibreWebComplete={() => setCalibreSettingsComplete(true)}
+                onCalibreWebDownloaderComplete={() =>
+                  setCalibreDownloaderSettingsComplete(true)
+                }
+              />
+              <div className="actions">
+                <div className="flex justify-end">
+                  <span className="ml-3 inline-flex rounded-md shadow-sm">
+                    <Button
+                      buttonType="primary"
+                      onClick={() => finishSetup()}
+                      disabled={
+                        isUpdating ||
+                        !calibreSettingsComplete ||
+                        !calibreDownloaderSettingsComplete
+                      }
                     >
                       {isUpdating
                         ? intl.formatMessage(messages.finishing)

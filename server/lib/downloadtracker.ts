@@ -26,6 +26,7 @@ export interface DownloadingItem {
 class DownloadTracker {
   private radarrServers: Record<number, DownloadingItem[]> = {};
   private sonarrServers: Record<number, DownloadingItem[]> = {};
+  private calibreDownloaders: Record<number, DownloadingItem[]> = {};
 
   public getMovieProgress(
     serverId: number,

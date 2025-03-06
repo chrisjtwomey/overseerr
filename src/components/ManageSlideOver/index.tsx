@@ -11,8 +11,13 @@ import globalMessages from '@app/i18n/globalMessages';
 import { Bars4Icon, ServerIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, DocumentMinusIcon } from '@heroicons/react/24/solid';
 import { IssueStatus } from '@server/constants/issue';
-import { MediaRequestStatus, MediaStatus } from '@server/constants/media';
+import {
+  MediaRequestStatus,
+  MediaStatus,
+  MediaType,
+} from '@server/constants/media';
 import type { MediaWatchDataResponse } from '@server/interfaces/api/mediaInterfaces';
+import type { BookDetails } from '@server/models/Book';
 import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
@@ -48,10 +53,6 @@ const messages = defineMessages({
   tvshow: 'series',
 });
 
-const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
-  return (movie as MovieDetails).title !== undefined;
-};
-
 interface ManageSlideOverProps {
   // mediaType: 'movie' | 'tv';
   show?: boolean;
@@ -69,13 +70,21 @@ interface ManageSlideOverTvProps extends ManageSlideOverProps {
   data: TvDetails;
 }
 
+interface ManageSlideOverBookProps extends ManageSlideOverProps {
+  mediaType: 'book';
+  data: BookDetails;
+}
+
 const ManageSlideOver = ({
   show,
   mediaType,
   onClose,
   data,
   revalidate,
-}: ManageSlideOverMovieProps | ManageSlideOverTvProps) => {
+}:
+  | ManageSlideOverMovieProps
+  | ManageSlideOverTvProps
+  | ManageSlideOverBookProps) => {
   const { user: currentUser, hasPermission } = useUser();
   const intl = useIntl();
   const settings = useSettings();
@@ -132,11 +141,19 @@ const ManageSlideOver = ({
       show={show}
       title={intl.formatMessage(messages.manageModalTitle, {
         mediaType: intl.formatMessage(
-          mediaType === 'movie' ? globalMessages.movie : globalMessages.tvshow
+          mediaType === 'movie'
+            ? globalMessages.movie
+            : mediaType === 'tv'
+            ? globalMessages.tvshow
+            : globalMessages.book
         ),
       })}
       onClose={() => onClose()}
-      subText={isMovie(data) ? data.title : data.name}
+      subText={
+        data.type === MediaType.MOVIE || data.type === MediaType.BOOK
+          ? data.title
+          : data.name
+      }
     >
       <div className="space-y-6">
         {((data?.mediaInfo?.downloadStatus ?? []).length > 0 ||

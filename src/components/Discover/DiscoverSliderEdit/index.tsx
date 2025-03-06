@@ -168,6 +168,12 @@ const DiscoverSliderEdit = ({
         return intl.formatMessage(sliderTitles.tmdbmoviestreamingservices);
       case DiscoverSliderType.TMDB_TV_STREAMING_SERVICES:
         return intl.formatMessage(sliderTitles.tmdbtvstreamingservices);
+      case DiscoverSliderType.TRENDING_BOOKS:
+        return intl.formatMessage(sliderTitles.trendingbooks);
+      case DiscoverSliderType.POPULAR_BOOKS:
+        return intl.formatMessage(sliderTitles.popularbooks);
+      case DiscoverSliderType.UPCOMING_BOOKS:
+        return intl.formatMessage(sliderTitles.upcomingbooks);
       default:
         return 'Unknown Slider';
     }

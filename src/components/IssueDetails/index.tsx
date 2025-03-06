@@ -22,6 +22,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { IssueStatus } from '@server/constants/issue';
 import { MediaType } from '@server/constants/media';
 import type Issue from '@server/entity/Issue';
+import type { BookDetails } from '@server/models/Book';
 import type { MovieDetails } from '@server/models/Movie';
 import type { TvDetails } from '@server/models/Tv';
 import axios from 'axios';
@@ -70,10 +71,6 @@ const messages = defineMessages({
   commentplaceholder: 'Add a comment…',
 });
 
-const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
-  return (movie as MovieDetails).title !== undefined;
-};
-
 const IssueDetails = () => {
   const { addToast } = useToasts();
   const router = useRouter();
@@ -83,9 +80,11 @@ const IssueDetails = () => {
   const { data: issueData, mutate: revalidateIssue } = useSWR<Issue>(
     `/api/v1/issue/${router.query.issueId}`
   );
-  const { data, error } = useSWR<MovieDetails | TvDetails>(
+  const { data, error } = useSWR<MovieDetails | TvDetails | BookDetails>(
     issueData?.media.tmdbId
       ? `/api/v1/${issueData.media.mediaType}/${issueData.media.tmdbId}`
+      : issueData?.media.hardcoverId
+      ? `/api/v1/${issueData.media.mediaType}/${issueData.media.hardcoverId}`
       : null
   );
 
@@ -171,8 +170,12 @@ const IssueDetails = () => {
     }
   };
 
-  const title = isMovie(data) ? data.title : data.name;
-  const releaseYear = isMovie(data) ? data.releaseDate : data.firstAirDate;
+  const title =
+    data.type === 'movie' || data.type === 'book' ? data.title : data.name;
+  const releaseYear =
+    data.type === 'movie' || data.type === 'book'
+      ? data.releaseDate
+      : data.firstAirDate;
 
   return (
     <div
@@ -206,7 +209,7 @@ const IssueDetails = () => {
         <div className="media-page-bg-image">
           <CachedImage
             alt=""
-            src={`https://image.tmdb.org/t/p/w1920_and_h800_multi_faces/${data.backdropPath}`}
+            src={`${data.backdropPath}`}
             layout="fill"
             objectFit="cover"
             priority
@@ -225,7 +228,7 @@ const IssueDetails = () => {
           <CachedImage
             src={
               data.posterPath
-                ? `https://image.tmdb.org/t/p/w600_and_h900_bestv2${data.posterPath}`
+                ? `${data.posterPath}`
                 : '/images/overseerr_poster_not_found.png'
             }
             alt=""
@@ -249,11 +252,7 @@ const IssueDetails = () => {
             )}
           </div>
           <h1>
-            <Link
-              href={`/${
-                issueData.media.mediaType === MediaType.MOVIE ? 'movie' : 'tv'
-              }/${data.id}`}
-            >
+            <Link href={`/${issueData.media.mediaType}/${data.id}`}>
               <a className="hover:underline">{title}</a>
             </Link>{' '}
             {releaseYear && (

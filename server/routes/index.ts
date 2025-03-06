@@ -1,4 +1,5 @@
 import GithubAPI from '@server/api/github';
+import Hardcover from '@server/api/hardcover';
 import PushoverAPI from '@server/api/pushover';
 import TheMovieDb from '@server/api/themoviedb';
 import type {
@@ -22,6 +23,9 @@ import restartFlag from '@server/utils/restartFlag';
 import { isPerson } from '@server/utils/typeHelpers';
 import { Router } from 'express';
 import authRoutes from './auth';
+import authorRoutes from './author';
+import bookRoutes from './book';
+import calibreWebRoutes from './calibreweb';
 import collectionRoutes from './collection';
 import discoverRoutes, { createTmdbWithRegionLanguage } from './discover';
 import issueRoutes from './issue';
@@ -102,9 +106,17 @@ router.get('/settings/public', async (req, res) => {
     return res
       .status(200)
       .json({ ...settings.fullPublicSettings, enablePushRegistration: false });
-  } else {
-    return res.status(200).json(settings.fullPublicSettings);
   }
+
+  if (!settings.hardcover.token) {
+    // force the user back through setup if Hardcover is not configured
+    return res.status(200).json({
+      ...settings.fullPublicSettings,
+      initialized: false,
+    });
+  }
+
+  return res.status(200).json(settings.fullPublicSettings);
 });
 router.get('/settings/discover', isAuthenticated(), async (_req, res) => {
   const sliderRepository = getRepository(DiscoverSlider);
@@ -144,6 +156,9 @@ router.use('/discover', isAuthenticated(), discoverRoutes);
 router.use('/request', isAuthenticated(), requestRoutes);
 router.use('/movie', isAuthenticated(), movieRoutes);
 router.use('/tv', isAuthenticated(), tvRoutes);
+router.use('/author', isAuthenticated(), authorRoutes);
+router.use('/book', isAuthenticated(), bookRoutes);
+router.use('/calibreweb', isAuthenticated(), calibreWebRoutes);
 router.use('/media', isAuthenticated(), mediaRoutes);
 router.use('/person', isAuthenticated(), personRoutes);
 router.use('/collection', isAuthenticated(), collectionRoutes);
@@ -268,6 +283,28 @@ router.get('/genres/tv', isAuthenticated(), async (req, res, next) => {
     return next({
       status: 500,
       message: 'Unable to retrieve series genres.',
+    });
+  }
+});
+
+router.get('/genres/book', isAuthenticated(), async (req, res, next) => {
+  const settings = getSettings();
+  const hardcover = new Hardcover({
+    token: settings.hardcover.token,
+  });
+
+  try {
+    const genres = await hardcover.getGenres();
+
+    return res.status(200).json(genres);
+  } catch (e) {
+    logger.debug('Something went wrong retrieving book genres', {
+      label: 'API',
+      errorMessage: e.message,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to retrieve book genres.',
     });
   }
 });

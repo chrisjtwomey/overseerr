@@ -329,6 +329,19 @@ export class User {
         restricted:
           tvQuotaLimit && tvQuotaLimit - tvQuotaUsed <= 0 ? true : false,
       },
+      // TODO: change to books
+      book: {
+        days: movieQuotaDays,
+        limit: movieQuotaLimit,
+        used: movieQuotaUsed,
+        remaining: movieQuotaLimit
+          ? Math.max(0, movieQuotaLimit - movieQuotaUsed)
+          : undefined,
+        restricted:
+          movieQuotaLimit && movieQuotaLimit - movieQuotaUsed <= 0
+            ? true
+            : false,
+      },
     };
   }
 }

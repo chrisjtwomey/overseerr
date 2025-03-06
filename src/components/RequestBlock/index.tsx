@@ -78,7 +78,7 @@ const RequestBlock = ({ request, onUpdate }: RequestBlockProps) => {
     <div className="block">
       <RequestModal
         show={showEditModal}
-        tmdbId={request.media.tmdbId}
+        mediaId={request.media.tmdbId}
         type={request.type}
         is4k={request.is4k}
         editRequest={request}

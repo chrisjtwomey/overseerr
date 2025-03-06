@@ -4,8 +4,10 @@ import type {
   TmdbPersonDetails,
 } from '@server/api/themoviedb/interfaces';
 import type Media from '@server/entity/Media';
+import type { EntityDetails } from '@server/models/common';
 
-export interface PersonDetails {
+export interface PersonDetails extends EntityDetails {
+  type: 'person';
   id: number;
   name: string;
   birthday: string;
@@ -63,6 +65,7 @@ export interface CombinedCredit {
 }
 
 export const mapPersonDetails = (person: TmdbPersonDetails): PersonDetails => ({
+  type: 'person',
   id: person.id,
   name: person.name,
   birthday: person.birthday,

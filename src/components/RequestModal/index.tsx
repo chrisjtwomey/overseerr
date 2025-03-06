@@ -1,3 +1,4 @@
+import BookRequestModal from '@app/components/RequestModal/BookRequestModal';
 import CollectionRequestModal from '@app/components/RequestModal/CollectionRequestModal';
 import MovieRequestModal from '@app/components/RequestModal/MovieRequestModal';
 import TvRequestModal from '@app/components/RequestModal/TvRequestModal';
@@ -7,8 +8,8 @@ import type { MediaRequest } from '@server/entity/MediaRequest';
 
 interface RequestModalProps {
   show: boolean;
-  type: 'movie' | 'tv' | 'collection';
-  tmdbId: number;
+  type: 'movie' | 'tv' | 'collection' | 'book';
+  mediaId: number;
   is4k?: boolean;
   editRequest?: MediaRequest;
   onComplete?: (newStatus: MediaStatus) => void;
@@ -19,7 +20,7 @@ interface RequestModalProps {
 const RequestModal = ({
   type,
   show,
-  tmdbId,
+  mediaId,
   is4k,
   editRequest,
   onComplete,
@@ -41,7 +42,7 @@ const RequestModal = ({
         <MovieRequestModal
           onComplete={onComplete}
           onCancel={onCancel}
-          tmdbId={tmdbId}
+          tmdbId={mediaId}
           onUpdating={onUpdating}
           is4k={is4k}
           editRequest={editRequest}
@@ -50,16 +51,24 @@ const RequestModal = ({
         <TvRequestModal
           onComplete={onComplete}
           onCancel={onCancel}
-          tmdbId={tmdbId}
+          tmdbId={mediaId}
           onUpdating={onUpdating}
           is4k={is4k}
+          editRequest={editRequest}
+        />
+      ) : type === 'book' ? (
+        <BookRequestModal
+          onComplete={onComplete}
+          onCancel={onCancel}
+          bookId={mediaId}
+          onUpdating={onUpdating}
           editRequest={editRequest}
         />
       ) : (
         <CollectionRequestModal
           onComplete={onComplete}
           onCancel={onCancel}
-          tmdbId={tmdbId}
+          tmdbId={mediaId}
           onUpdating={onUpdating}
           is4k={is4k}
         />

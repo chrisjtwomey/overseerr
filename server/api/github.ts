@@ -83,7 +83,7 @@ class GithubAPI extends ExternalAPI {
   } = {}): Promise<GitHubRelease[]> {
     try {
       const data = await this.get<GitHubRelease[]>(
-        '/repos/sct/overseerr/releases',
+        '/repos/chrisjtwomey/overseerr/releases',
         {
           params: {
             per_page: take,
@@ -103,14 +103,14 @@ class GithubAPI extends ExternalAPI {
 
   public async getOverseerrCommits({
     take = 20,
-    branch = 'develop',
+    branch = 'feat/ebooks',
   }: {
     take?: number;
     branch?: string;
   } = {}): Promise<GithubCommit[]> {
     try {
       const data = await this.get<GithubCommit[]>(
-        '/repos/sct/overseerr/commits',
+        '/repos/chrisjtwomey/overseerr/commits',
         {
           params: {
             per_page: take,

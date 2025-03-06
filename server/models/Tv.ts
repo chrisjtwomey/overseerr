@@ -10,6 +10,7 @@ import type Media from '@server/entity/Media';
 import type {
   Cast,
   Crew,
+  EntityDetails,
   ExternalIds,
   Genre,
   Keyword,
@@ -61,7 +62,8 @@ interface SpokenLanguage {
   name: string;
 }
 
-export interface TvDetails {
+export interface TvDetails extends EntityDetails {
+  type: 'tv';
   id: number;
   backdropPath?: string;
   posterPath?: string;
@@ -100,13 +102,13 @@ export interface TvDetails {
   seasons: Season[];
   status: string;
   tagline?: string;
-  type: string;
   voteAverage: number;
   voteCount: number;
   credits: {
     cast: Cast[];
     crew: Crew[];
   };
+  showType: string;
   externalIds: ExternalIds;
   keywords: Keyword[];
   mediaInfo?: Media;
@@ -163,6 +165,7 @@ export const mapTvDetails = (
   show: TmdbTvDetails,
   media?: Media
 ): TvDetails => ({
+  type: 'tv',
   createdBy: show.created_by,
   episodeRunTime: show.episode_run_time,
   firstAirDate: show.first_air_date,
@@ -201,7 +204,7 @@ export const mapTvDetails = (
   })),
   seasons: show.seasons.map(mapSeasonResult),
   status: show.status,
-  type: show.type,
+  showType: show.type,
   voteAverage: show.vote_average,
   voteCount: show.vote_count,
   backdropPath: show.backdrop_path,

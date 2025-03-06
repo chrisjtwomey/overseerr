@@ -3,6 +3,8 @@ import type { NotificationAgentKey } from '@server/lib/settings';
 export interface UserSettingsGeneralResponse {
   username?: string;
   discordId?: string;
+  calibreAPIKey?: string;
+  autoSendAvailableRequestedBooks?: boolean;
   locale?: string;
   region?: string;
   originalLanguage?: string;
