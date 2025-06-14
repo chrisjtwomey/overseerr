@@ -71,7 +71,7 @@ const SettingsAbout = () => {
             </p>
             <p className="mt-3 text-sm leading-5 md:mt-0 md:ml-6">
               <a
-                href="http://github.com/sct/overseerr"
+                href="http://github.com/chrisjtwomey/overseerr"
                 className="whitespace-nowrap font-medium text-gray-100 transition duration-150 ease-in-out hover:text-white"
                 target="_blank"
                 rel="noreferrer"
@@ -105,8 +105,8 @@ const SettingsAbout = () => {
                 <a
                   href={
                     data.version.startsWith('develop-')
-                      ? `https://github.com/sct/overseerr/compare/${status.commitTag}...develop`
-                      : 'https://github.com/sct/overseerr/releases'
+                      ? `https://github.com/chrisjgtwomey/overseerr/compare/${status.commitTag}...develop`
+                      : 'https://github.com/chrisjtwomey/overseerr/releases'
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -122,8 +122,8 @@ const SettingsAbout = () => {
                 <a
                   href={
                     data.version.startsWith('develop-')
-                      ? 'https://github.com/sct/overseerr/commits/develop'
-                      : 'https://github.com/sct/overseerr/releases'
+                      ? 'https://github.com/chrisjtwomey/overseerr/commits/develop'
+                      : 'https://github.com/chrisjtwomey/overseerr/releases'
                   }
                   target="_blank"
                   rel="noopener noreferrer"
