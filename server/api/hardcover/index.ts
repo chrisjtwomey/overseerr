@@ -897,7 +897,6 @@ class Hardcover extends ExternalGraphQLAPI {
       image_url: bookData.cached_image?.url || '',
       rating: bookData.rating || 0.0,
       ratings_count: bookData.ratings_count || 0,
-      url: 'https://hardcover.app/books/' + bookData.slug,
       authors:
         bookData.cached_contributors?.map(
           (contributor: { author: AuthorFragment }) =>
@@ -915,6 +914,13 @@ class Hardcover extends ExternalGraphQLAPI {
         isbn: selectedEdition.ISBN,
         asin: selectedEdition.ASIN,
         hardcover_id: bookData.id,
+      },
+      external_urls: {
+        hardcover: `https://hardcover.app/books/${bookData.slug}`,
+        goodreads: defaultEdition.external_urls?.goodreads,
+        open_library: defaultEdition.external_urls?.openlibrary,
+        amazon: defaultEdition.external_urls?.amazon,
+        isbndb: defaultEdition.external_urls?.isbndb,
       },
       status: bookData.release_date
         ? new Date(bookData.release_date) < new Date()
@@ -969,23 +975,46 @@ class Hardcover extends ExternalGraphQLAPI {
 
   private mapEditionFragment = (
     editionData: EditionFragment
-  ): HardcoverEdition => ({
-    id: editionData.id,
-    ISBN: editionData?.isbn_13 || editionData?.isbn_10 || undefined,
-    ASIN: editionData?.asin || undefined,
-    title: editionData?.title || 'Unknown Title',
-    description: editionData?.description || '',
-    pages: editionData?.pages || 0,
-    publisher:
-      editionData.publisher !== null
-        ? this.mapPublisherFragment(editionData.publisher as PublisherFragment)
-        : undefined,
-    language:
-      editionData.language !== null
-        ? this.mapLanuageFragment(editionData.language as LanguageFragment)
-        : undefined,
-    release_date: editionData.release_date || '',
-  });
+  ): HardcoverEdition => {
+    const edition = {
+      id: editionData.id,
+      ISBN: editionData?.isbn_13 || editionData?.isbn_10 || undefined,
+      ASIN: editionData?.asin || undefined,
+      title: editionData?.title || 'Unknown Title',
+      description: editionData?.description || '',
+      pages: editionData?.pages || 0,
+      publisher:
+        editionData.publisher !== null
+          ? this.mapPublisherFragment(
+              editionData.publisher as PublisherFragment
+            )
+          : undefined,
+      language:
+        editionData.language !== null
+          ? this.mapLanuageFragment(editionData.language as LanguageFragment)
+          : undefined,
+      release_date: editionData.release_date || '',
+      external_urls: {},
+    } as HardcoverEdition;
+
+    if (edition.ASIN) {
+      edition.external_urls.amazon = `https://www.amazon.com/dp/${edition.ASIN}`;
+    }
+
+    if (edition.ISBN) {
+      edition.external_urls.isbndb = `https://isbndb.com/book/${edition.ISBN}`;
+    }
+
+    if (editionData.identifiers?.goodreads.length > 0) {
+      edition.external_urls.goodreads = `https://www.goodreads.com/book/show/${editionData.identifiers.goodreads[0]}`;
+    }
+
+    if (editionData.identifiers?.openlibrary.length > 0) {
+      edition.external_urls.openlibrary = `https://openlibrary.org/books/${editionData.identifiers.openlibrary[0]}`;
+    }
+
+    return edition;
+  };
 
   private mapAuthorFragment = (
     authorData: AuthorFragment

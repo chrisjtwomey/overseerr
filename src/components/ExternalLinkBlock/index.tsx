@@ -1,5 +1,9 @@
+import AmazonLogo from '@app/assets/services/amazon.svg';
+import GoodreadsLogo from '@app/assets/services/goodreads.svg';
 import HardcoverLogo from '@app/assets/services/hardcover.svg';
 import ImdbLogo from '@app/assets/services/imdb.svg';
+import IsbndbLogo from '@app/assets/services/isbndb.svg';
+import OpenLibraryLogo from '@app/assets/services/openlibrary.svg';
 import PlexLogo from '@app/assets/services/plex.svg';
 import RTLogo from '@app/assets/services/rt.svg';
 import TmdbLogo from '@app/assets/services/tmdb.svg';
@@ -14,6 +18,10 @@ interface ExternalLinkBlockProps {
   tvdbId?: number;
   imdbId?: string;
   hardcoverUrl?: string;
+  goodreadsUrl?: string;
+  isbndbUrl?: string;
+  openlibraryUrl?: string;
+  amazonUrl?: string;
   rtUrl?: string;
   plexUrl?: string;
 }
@@ -24,6 +32,10 @@ const ExternalLinkBlock = ({
   tvdbId,
   imdbId,
   hardcoverUrl,
+  goodreadsUrl,
+  isbndbUrl,
+  openlibraryUrl,
+  amazonUrl,
   rtUrl,
   plexUrl,
 }: ExternalLinkBlockProps) => {
@@ -79,6 +91,46 @@ const ExternalLinkBlock = ({
           rel="noreferrer"
         >
           <HardcoverLogo />
+        </a>
+      )}
+      {goodreadsUrl && (
+        <a
+          href={goodreadsUrl}
+          className="w-8 opacity-50 transition duration-300 hover:opacity-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <GoodreadsLogo />
+        </a>
+      )}
+      {isbndbUrl && (
+        <a
+          href={isbndbUrl}
+          className="w-8 opacity-50 transition duration-300 hover:opacity-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <IsbndbLogo />
+        </a>
+      )}
+      {openlibraryUrl && (
+        <a
+          href={openlibraryUrl}
+          className="w-8 opacity-50 transition duration-300 hover:opacity-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <OpenLibraryLogo />
+        </a>
+      )}
+      {amazonUrl && (
+        <a
+          href={amazonUrl}
+          className="w-8 opacity-50 transition duration-300 hover:opacity-100"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <AmazonLogo />
         </a>
       )}
       {rtUrl && (

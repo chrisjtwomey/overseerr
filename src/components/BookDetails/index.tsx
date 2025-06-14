@@ -377,7 +377,7 @@ const BookDetails = ({ book }: BookDetailsProps) => {
                   content={intl.formatMessage(messages.hardcoveruserscore)}
                 >
                   <a
-                    href={data.url}
+                    href={data.externalUrls?.hardcover}
                     className="media-rating"
                     target="_blank"
                     rel="noreferrer"
@@ -444,7 +444,14 @@ const BookDetails = ({ book }: BookDetailsProps) => {
               </div>
             )}
             <div className="media-fact">
-              <ExternalLinkBlock mediaType="book" hardcoverUrl={data.url} />
+              <ExternalLinkBlock
+                mediaType="book"
+                hardcoverUrl={data.externalUrls?.hardcover}
+                goodreadsUrl={data.externalUrls?.goodreads}
+                openlibraryUrl={data.externalUrls?.openlibrary}
+                isbndbUrl={data.externalUrls?.isbndb}
+                amazonUrl={data.externalUrls?.amazon}
+              />
             </div>
           </div>
         </div>

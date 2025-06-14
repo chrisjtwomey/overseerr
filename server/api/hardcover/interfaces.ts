@@ -23,6 +23,14 @@ export interface HardcoverLanguage {
   code: string;
 }
 
+export interface HardcoverExternalUrls {
+  hardcover?: string;
+  isbndb?: string;
+  goodreads?: string;
+  openlibrary?: string;
+  amazon?: string;
+}
+
 export interface HardcoverEdition {
   id: number;
   ISBN?: string;
@@ -33,6 +41,7 @@ export interface HardcoverEdition {
   pages: number;
   publisher?: HardcoverPublisher;
   language?: HardcoverLanguage;
+  external_urls: HardcoverExternalUrls;
 }
 
 export interface HardcoverBookPreview {
@@ -58,7 +67,6 @@ export interface HardcoverBook extends HardcoverBookPreview {
   series?: HardcoverFeaturedSeries;
   headline?: string;
   ratings_count: number;
-  url: string;
   pages: number;
   genres: HardcoverTag[];
   moods: HardcoverTag[];
@@ -69,6 +77,7 @@ export interface HardcoverBook extends HardcoverBookPreview {
     goodreads_id?: number;
     open_library_id?: string;
   };
+  external_urls: HardcoverExternalUrls;
   series_ids?: number[];
   status: 'Published' | 'Not released' | 'Unknown';
 }

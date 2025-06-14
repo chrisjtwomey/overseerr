@@ -1,6 +1,7 @@
 import type {
   HardcoverAuthor,
   HardcoverBook,
+  HardcoverExternalUrls,
   HardcoverFeaturedSeries,
   HardcoverPublisher,
 } from '@server/api/hardcover/interfaces';
@@ -32,7 +33,7 @@ export interface BookDetails extends EntityDetails {
   voteAverage: number;
   voteCount: number;
   status: string;
-  url: string;
+  externalUrls?: HardcoverExternalUrls;
   mediaInfo?: Media;
 }
 
@@ -64,6 +65,6 @@ export const mapBookDetails = (
   voteAverage: bookResult.rating,
   voteCount: bookResult.ratings_count,
   status: bookResult.status,
-  url: bookResult.url,
+  externalUrls: bookResult.external_urls,
   mediaInfo: media,
 });

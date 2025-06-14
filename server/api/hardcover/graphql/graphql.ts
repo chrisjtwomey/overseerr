@@ -19330,6 +19330,7 @@ export type EditionFragment = {
   asin?: string | null;
   title?: string | null;
   description?: string | null;
+  identifiers?: any | null;
   pages?: number | null;
   release_date?: any | null;
   edition_format?: string | null;
@@ -19359,6 +19360,7 @@ export type BookPartialFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19381,6 +19383,7 @@ export type BookPartialFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19403,6 +19406,7 @@ export type BookPartialFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19440,6 +19444,7 @@ export type BookFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19462,6 +19467,7 @@ export type BookFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19484,6 +19490,7 @@ export type BookFragment = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19522,6 +19529,7 @@ export type SeriesFragment = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19544,6 +19552,7 @@ export type SeriesFragment = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19566,6 +19575,7 @@ export type SeriesFragment = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19619,6 +19629,7 @@ export type GetBookByIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19641,6 +19652,7 @@ export type GetBookByIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19663,6 +19675,7 @@ export type GetBookByIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19695,6 +19708,7 @@ export type GetBookByEditionIdQuery = {
     asin?: string | null;
     title?: string | null;
     description?: string | null;
+    identifiers?: any | null;
     pages?: number | null;
     release_date?: any | null;
     edition_format?: string | null;
@@ -19719,6 +19733,7 @@ export type GetBookByEditionIdQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19741,6 +19756,7 @@ export type GetBookByEditionIdQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19763,6 +19779,7 @@ export type GetBookByEditionIdQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -19819,6 +19836,7 @@ export type GetBookByIdentifierQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19841,6 +19859,7 @@ export type GetBookByIdentifierQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19863,6 +19882,7 @@ export type GetBookByIdentifierQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19904,6 +19924,7 @@ export type GetBooksQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19926,6 +19947,7 @@ export type GetBooksQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19948,6 +19970,7 @@ export type GetBooksQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -19991,6 +20014,7 @@ export type GetBooksByIDsQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20013,6 +20037,7 @@ export type GetBooksByIDsQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20035,6 +20060,7 @@ export type GetBooksByIDsQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20083,6 +20109,7 @@ export type GetBooksBySeriesIdQuery = {
           asin?: string | null;
           title?: string | null;
           description?: string | null;
+          identifiers?: any | null;
           pages?: number | null;
           release_date?: any | null;
           edition_format?: string | null;
@@ -20105,6 +20132,7 @@ export type GetBooksBySeriesIdQuery = {
           asin?: string | null;
           title?: string | null;
           description?: string | null;
+          identifiers?: any | null;
           pages?: number | null;
           release_date?: any | null;
           edition_format?: string | null;
@@ -20127,6 +20155,7 @@ export type GetBooksBySeriesIdQuery = {
           asin?: string | null;
           title?: string | null;
           description?: string | null;
+          identifiers?: any | null;
           pages?: number | null;
           release_date?: any | null;
           edition_format?: string | null;
@@ -20211,6 +20240,7 @@ export type GetBooksByAuthorIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20233,6 +20263,7 @@ export type GetBooksByAuthorIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20255,6 +20286,7 @@ export type GetBooksByAuthorIdQuery = {
       asin?: string | null;
       title?: string | null;
       description?: string | null;
+      identifiers?: any | null;
       pages?: number | null;
       release_date?: any | null;
       edition_format?: string | null;
@@ -20316,6 +20348,7 @@ export type GetBookRecommendationsQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -20338,6 +20371,7 @@ export type GetBookRecommendationsQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -20360,6 +20394,7 @@ export type GetBookRecommendationsQuery = {
         asin?: string | null;
         title?: string | null;
         description?: string | null;
+        identifiers?: any | null;
         pages?: number | null;
         release_date?: any | null;
         edition_format?: string | null;
@@ -20541,6 +20576,7 @@ export const EditionFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -20739,7 +20775,7 @@ export const BookPartialFragmentDoc = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -20805,6 +20841,7 @@ export const BookPartialFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -20923,6 +20960,7 @@ export const BookFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -21084,7 +21122,7 @@ export const BookFragmentDoc = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -21279,6 +21317,7 @@ export const SeriesFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -21440,7 +21479,7 @@ export const SeriesFragmentDoc = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -21596,6 +21635,7 @@ export const GetBookByIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -21757,7 +21797,7 @@ export const GetBookByIdDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -21933,6 +21973,7 @@ export const GetBookByEditionIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -22094,7 +22135,7 @@ export const GetBookByEditionIdDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -22389,6 +22430,7 @@ export const GetBookByIdentifierDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -22550,7 +22592,7 @@ export const GetBookByIdentifierDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -22801,6 +22843,7 @@ export const GetBooksDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -22962,7 +23005,7 @@ export const GetBooksDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -23145,6 +23188,7 @@ export const GetBooksByIDsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -23306,7 +23350,7 @@ export const GetBooksByIDsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -23459,6 +23503,7 @@ export const GetBooksBySeriesIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -23620,7 +23665,7 @@ export const GetBooksBySeriesIdDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -24188,6 +24233,7 @@ export const GetBooksByAuthorIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -24349,7 +24395,7 @@ export const GetBooksByAuthorIdDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
@@ -24718,6 +24764,7 @@ export const GetBookRecommendationsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
           { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
           {
             kind: 'Field',
@@ -24879,7 +24926,7 @@ export const GetBookRecommendationsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '1' },
+                value: { kind: 'IntValue', value: '3' },
               },
             ],
             selectionSet: {
