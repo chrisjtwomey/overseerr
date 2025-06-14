@@ -10,7 +10,7 @@ import type { EntityDetails, Genre, Keyword } from './common';
 export interface BookDetails extends EntityDetails {
   type: 'book';
   id: number;
-  identifier?: string;
+  identifiers: string[];
   title: string;
   originalTitle?: string;
   releaseDate: string;
@@ -42,7 +42,7 @@ export const mapBookDetails = (
 ): BookDetails => ({
   type: 'book',
   id: bookResult.id,
-  identifier: bookResult.identifier,
+  identifiers: bookResult.identifiers,
   title: bookResult.title,
   originalTitle: bookResult.original_title,
   releaseDate: bookResult.release_date,

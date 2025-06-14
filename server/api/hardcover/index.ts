@@ -871,7 +871,7 @@ class Hardcover extends ExternalGraphQLAPI {
       media_type: 'book' as const,
       id: selectedEdition.id,
       bookId: bookData.id,
-      identifier: selectedEdition.ISBN || selectedEdition.ASIN || '',
+      identifiers: [],
       title: selectedEdition.title,
       original_title: bookData.title || defaultEdition.title,
       release_date: selectedEdition.release_date || '',
@@ -922,7 +922,23 @@ class Hardcover extends ExternalGraphQLAPI {
           : 'Not released'
         : ('Unknown' as 'Published' | 'Not released' | 'Unknown'),
       // series_ids: bookData.book_series.map((series) => series.id),
-    };
+    } as HardcoverBook;
+
+    for (const edition of bookData.editions) {
+      if (edition.isbn_13) {
+        book.identifiers.push(edition.isbn_13);
+      }
+
+      if (edition.isbn_10) {
+        book.identifiers.push(edition.isbn_10);
+      }
+
+      if (edition.asin) {
+        book.identifiers.push(edition.asin);
+      }
+    }
+    // ensure identifiers contains unique values
+    book.identifiers = Array.from(new Set(book.identifiers));
 
     return book;
   };

@@ -634,12 +634,15 @@ class BaseScanner<T> {
             .leftJoinAndSelect('user.settings', 'settings')
             .getOne();
 
-          if (!user || !user.settings) {
+          if (!user) {
             this.log(
-              `User ${userId} not found or settings not available for book '${title}'`,
+              `User ${userId} not found for book request '${title}'`,
               'error',
               { userId, title }
             );
+            return;
+          }
+          if (!user.settings) {
             return;
           }
 

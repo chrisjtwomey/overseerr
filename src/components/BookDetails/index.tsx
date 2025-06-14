@@ -40,7 +40,6 @@ const messages = defineMessages({
     '{releaseCount, plural, one {Release Date} other {Release Dates}}',
   originallanguage: 'Original Language',
   overview: 'Overview',
-  booknumber: 'Book Number',
   pages: '{pages} pages',
   recommendations: 'Recommendations',
   similar: 'Similar Titles',
@@ -389,12 +388,6 @@ const BookDetails = ({ book }: BookDetailsProps) => {
                 </Tooltip>
               )}
             </div>
-            {data.identifier && (
-              <div className="media-fact">
-                <span>{intl.formatMessage(messages.booknumber)}</span>
-                <span className="media-fact-value">{data.identifier}</span>
-              </div>
-            )}
             {data.originalTitle && data.language !== locale.slice(0, 2) && (
               <div className="media-fact">
                 <span>{intl.formatMessage(messages.originaltitle)}</span>

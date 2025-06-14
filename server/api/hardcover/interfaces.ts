@@ -39,7 +39,7 @@ export interface HardcoverBookPreview {
   media_type: 'book';
   id: number;
   bookId: number;
-  identifier?: string;
+  identifiers: string[];
   title: string;
   description: string;
   image_url: string;

@@ -76,7 +76,7 @@ fragment BookPartial on books {
       edition_format: { _nin: ["Audible.com", "Audiobook", "Audible Audio"] }
     }
     order_by: { users_count: desc }
-    limit: 1
+    limit: 3
   ) {
     ...Edition
   }
