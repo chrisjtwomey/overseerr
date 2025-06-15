@@ -97,6 +97,8 @@ interface DiscoverBookOptions {
 class Hardcover extends ExternalGraphQLAPI {
   private region?: string;
   private originalLanguage?: string;
+  public static readonly DefaultPastDate = '2000-01-01';
+  public static readonly PageSize = 20;
 
   constructor({
     token,
@@ -230,7 +232,7 @@ class Hardcover extends ExternalGraphQLAPI {
     language?: string;
     page: number;
   }): Promise<HardcoverSearchBookResponse> => {
-    const limit = 25;
+    const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
 
     try {
@@ -284,7 +286,7 @@ class Hardcover extends ExternalGraphQLAPI {
     language?: string;
     page: number;
   }): Promise<HardcoverSearchBookResponse> => {
-    const limit = 25;
+    const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
     const total_pages = 10;
     const total_results = limit * total_pages;
@@ -329,7 +331,7 @@ class Hardcover extends ExternalGraphQLAPI {
   getTrendingBooks = async ({
     from = new Date(
       new Date().getFullYear(),
-      new Date().getMonth() - 3,
+      new Date().getMonth() - 3, // in the last 3 months
       new Date().getDate(),
       0,
       0,
@@ -345,7 +347,7 @@ class Hardcover extends ExternalGraphQLAPI {
     language?: string;
     page?: number;
   }): Promise<HardcoverSearchBookResponse> => {
-    const limit = 50;
+    const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
     const total_pages = 3;
     const total_results = limit * total_pages;
@@ -408,7 +410,7 @@ class Hardcover extends ExternalGraphQLAPI {
     language?: string;
     page: number;
   }): Promise<HardcoverSearchBookResponse> => {
-    const limit = 25;
+    const limit = Hardcover.PageSize;
     try {
       const searchData = await this.get<SearchQuery, SearchQueryVariables>(
         SearchDocument,
@@ -475,7 +477,7 @@ class Hardcover extends ExternalGraphQLAPI {
     searchTerm: string;
     page: number;
   }): Promise<HardcoverSearchAuthorResponse> => {
-    const limit = 25;
+    const limit = Hardcover.PageSize;
     try {
       const searchData = await this.get<SearchQuery, SearchQueryVariables>(
         SearchDocument,
@@ -606,7 +608,7 @@ class Hardcover extends ExternalGraphQLAPI {
       page = 1;
     }
 
-    const limit = 20;
+    const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
 
     try {
@@ -657,17 +659,12 @@ class Hardcover extends ExternalGraphQLAPI {
     voteCountGte,
     voteCountLte,
   }: DiscoverBookOptions = {}): Promise<HardcoverSearchBookResponse> => {
-    // const defaultFutureDate = new Date(
-    //   Date.now() + 1000 * 60 * 60 * 24 * (365 * 1.5)
-    // )
-    //   .toISOString()
-    //   .split('T')[0];
-    // const defaultPastDate = new Date('1900-01-01').toISOString().split('T')[0];
     const defaultFutureDate = new Date().toISOString().split('T')[0];
+    const defaultPastDate = new Date(Hardcover.DefaultPastDate)
+      .toISOString()
+      .split('T')[0];
 
-    const defaultPastDate = new Date('2000-01-01').toISOString().split('T')[0];
-
-    const limit = 20;
+    const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
 
     try {
@@ -708,14 +705,8 @@ class Hardcover extends ExternalGraphQLAPI {
       const getBooksQueryVariables: GetBooksQueryVariables = {
         where: {
           release_date: {
-            _gte:
-              !releaseDateGte && releaseDateLte
-                ? defaultPastDate
-                : releaseDateGte,
-            _lte:
-              !releaseDateLte && releaseDateLte
-                ? defaultFutureDate
-                : releaseDateLte,
+            _gte: !releaseDateGte ? defaultPastDate : releaseDateGte,
+            _lte: !releaseDateLte ? defaultFutureDate : releaseDateLte,
           },
         },
         language,
@@ -804,17 +795,20 @@ class Hardcover extends ExternalGraphQLAPI {
         };
       }
 
+      getBooksQueryVariables.where = {
+        ...getBooksQueryVariables.where,
+        editions_count: { _gt: 0 },
+      };
+
       const booksData = await this.get<GetBooksQuery, GetBooksQueryVariables>(
         GetBooksDocument,
         getBooksQueryVariables
       );
 
-      const books = booksData.books
-        .filter((bookData) => (bookData as BookFragment).editions.length > 0)
-        .map(
-          (bookData) =>
-            this.mapBookFragment(bookData as BookFragment) as HardcoverBook
-        );
+      const books = booksData.books.map(
+        (bookData) =>
+          this.mapBookFragment(bookData as BookFragment) as HardcoverBook
+      );
 
       return {
         results: books,
