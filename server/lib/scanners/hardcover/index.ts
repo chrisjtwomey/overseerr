@@ -41,11 +41,11 @@ class HardcoverCacheSync
 
       let retryCount = 0;
       let page = 1;
-      let maxPages = 3;
+      let maxPages = 10;
       while (retryCount < this.maxRetries && page <= maxPages) {
         await this.hardcover
           .getDiscoverBooks({
-            releaseDateGte: '2000-01-01',
+            releaseDateGte: Hardcover.DefaultPastDate,
             releaseDateLte: new Date().toISOString().split('T')[0],
             page,
           })
