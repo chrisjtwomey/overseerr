@@ -847,10 +847,6 @@ class Hardcover extends ExternalGraphQLAPI {
   };
 
   private mapBookFragment = (bookData: BookFragment): HardcoverBook => {
-    const selectedEdition = bookData.editions.map((editionData) =>
-      this.mapEditionFragment(editionData as EditionFragment)
-    )[0];
-
     const defaultEdition = bookData.default_physical_edition
       ? this.mapEditionFragment(
           bookData.default_physical_edition as EditionFragment
@@ -859,7 +855,24 @@ class Hardcover extends ExternalGraphQLAPI {
       ? this.mapEditionFragment(
           bookData.default_ebook_edition as EditionFragment
         )
-      : selectedEdition;
+      : undefined;
+
+    let selectedEdition: HardcoverEdition | undefined;
+
+    if (bookData.editions.length > 0) {
+      selectedEdition = bookData.editions.map((editionData) =>
+        this.mapEditionFragment(editionData as EditionFragment)
+      )[0];
+    }
+
+    if (!selectedEdition) {
+      if (!defaultEdition) {
+        throw new Error(
+          `[Hardcover] No editions found for book ID ${bookData.id}`
+        );
+      }
+      selectedEdition = defaultEdition;
+    }
 
     const book = {
       media_type: 'book' as const,
@@ -867,14 +880,14 @@ class Hardcover extends ExternalGraphQLAPI {
       bookId: bookData.id,
       identifiers: [],
       title: selectedEdition.title,
-      original_title: bookData.title || defaultEdition.title,
+      original_title: bookData.title || defaultEdition?.title,
       release_date: selectedEdition.release_date || '',
       original_release_date:
-        bookData.release_date || defaultEdition.release_date,
+        bookData.release_date || defaultEdition?.release_date,
       publisher: selectedEdition.publisher,
-      original_publisher: defaultEdition.publisher,
+      original_publisher: defaultEdition?.publisher,
       language: selectedEdition.language,
-      original_language: defaultEdition.language,
+      original_language: defaultEdition?.language,
       headline: bookData.headline || '',
       description: selectedEdition.description || '',
       pages: selectedEdition.pages || 0,
@@ -911,10 +924,10 @@ class Hardcover extends ExternalGraphQLAPI {
       },
       external_urls: {
         hardcover: `https://hardcover.app/books/${bookData.slug}`,
-        goodreads: defaultEdition.external_urls?.goodreads,
-        open_library: defaultEdition.external_urls?.openlibrary,
-        amazon: defaultEdition.external_urls?.amazon,
-        isbndb: defaultEdition.external_urls?.isbndb,
+        goodreads: selectedEdition?.external_urls?.goodreads,
+        open_library: selectedEdition?.external_urls?.openlibrary,
+        amazon: selectedEdition?.external_urls?.amazon,
+        isbndb: selectedEdition.external_urls?.isbndb,
       },
       status: bookData.release_date
         ? new Date(bookData.release_date) < new Date()

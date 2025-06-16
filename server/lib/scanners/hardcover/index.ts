@@ -52,6 +52,7 @@ class HardcoverCacheSync
           .then((response) => {
             this.log(`Fetched page ${page} of Discover books`, 'info', {
               page,
+              pageResults: response.results.length,
               totalPages: response.total_pages,
               totalResults: response.total_results,
             });
@@ -91,6 +92,7 @@ class HardcoverCacheSync
           .then((response) => {
             this.log(`Fetched page ${page} of Trending books`, 'info', {
               page,
+              pageResults: response.results.length,
               totalPages: response.total_pages,
               totalResults: response.total_results,
             });
@@ -138,6 +140,7 @@ class HardcoverCacheSync
           .then((response) => {
             this.log(`Fetched page ${page} of Upcoming books`, 'info', {
               page,
+              pageResults: response.results.length,
               totalPages: response.total_pages,
               totalResults: response.total_results,
             });
