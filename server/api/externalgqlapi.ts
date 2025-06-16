@@ -6,13 +6,21 @@ import type {
   TypedDocumentNode,
   WatchQueryFetchPolicy,
 } from '@apollo/client';
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  createHttpLink,
+  InMemoryCache,
+} from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
+import logger from '@server/logger';
 import { persistCache } from 'apollo3-cache-persist';
 import { AsyncNodeStorage } from 'redux-persist-node-storage';
 
 export class GraphQLCache {
   public cache: InMemoryCache;
+  private numTotalRequests = 0;
+  private numCacheMisses = 0;
 
   constructor() {
     this.cache = new InMemoryCache();
@@ -25,6 +33,14 @@ export class GraphQLCache {
       maxSize: 5242880, // 5MB
     });
   };
+
+  public incrMissCount() {
+    this.numCacheMisses++;
+  }
+
+  public incrRequestCount() {
+    this.numTotalRequests++;
+  }
 
   public get<T>(_key: string): T | undefined {
     throw new Error('Method not implemented.');
@@ -42,11 +58,14 @@ export class GraphQLCache {
     const cacheObj = this.cache.extract();
 
     return {
-      hits: 0,
-      misses: 0,
+      hits: this.numTotalRequests - this.numCacheMisses,
+      misses: this.numCacheMisses,
       keys: Object.keys(cacheObj).length,
-      ksize: 0,
-      vsize: 0,
+      ksize: Object.keys(cacheObj).reduce((acc, key) => acc + key.length, 0),
+      vsize: Object.values(cacheObj).reduce(
+        (acc, value) => acc + JSON.stringify(value).length,
+        0
+      ),
     };
   }
 
@@ -78,23 +97,36 @@ class ExternalGraphQLAPI {
   ) {
     this.client = new ApolloClient<NormalizedCacheObject>({
       cache: globalCache.cache,
-      link: new RetryLink({
-        delay: {
-          initial: 1000,
-          max: Infinity,
-          jitter: true,
-        },
-        attempts: {
-          max: 5,
-          retryIf: (error) => !!error,
-        },
+      link: new ApolloLink((operation, forward) => {
+        // Log the operation for debugging purposes
+        logger.debug(`GraphQL Operation: ${operation.operationName}`, {
+          variables: operation.variables,
+          operationName: operation.operationName,
+        });
+        globalCache.incrRequestCount();
+        return forward(operation).map((result) => {
+          globalCache.incrMissCount();
+          return result;
+        });
       }).concat(
-        createHttpLink({
-          uri: baseUrl,
-          headers: {
-            Authorization: params.token as string,
+        new RetryLink({
+          delay: {
+            initial: 1000,
+            max: Infinity,
+            jitter: true,
           },
-        })
+          attempts: {
+            max: 5,
+            retryIf: (error) => !!error,
+          },
+        }).concat(
+          createHttpLink({
+            uri: baseUrl,
+            headers: {
+              Authorization: params.token as string,
+            },
+          })
+        )
       ),
       defaultOptions: {
         query: {
@@ -109,6 +141,7 @@ class ExternalGraphQLAPI {
       },
       queryDeduplication: true,
       assumeImmutableResults: true,
+      dataMasking: false,
     });
   }
 
