@@ -15,7 +15,6 @@ import globalMessages from '@app/i18n/globalMessages';
 import Error from '@app/pages/_error';
 import { ArrowDownOnSquareIcon } from '@heroicons/react/24/outline';
 import type { UserSettingsGeneralResponse } from '@server/interfaces/api/userSettingsInterfaces';
-import type { CalibreWebSettings } from '@server/lib/settings';
 import axios from 'axios';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
@@ -38,6 +37,8 @@ const messages = defineMessages({
   user: 'User',
   toastSettingsSuccess: 'Settings saved successfully!',
   toastSettingsFailure: 'Something went wrong while saving settings.',
+  toastSettingsCalibreWebAPIKeyFailure:
+    'The Calibre Web API key you provided is invalid. Please check your settings.',
   region: 'Discover Region',
   regionTip: 'Filter content by regional availability',
   originallanguage: 'Discover Language',
@@ -88,9 +89,6 @@ const UserGeneralSettings = () => {
   } = useSWR<UserSettingsGeneralResponse>(
     user ? `/api/v1/user/${user?.id}/settings/main` : null
   );
-  const { data: calibreWebData } = useSWR<CalibreWebSettings>(
-    '/api/v1/settings/calibreweb'
-  );
 
   const UserGeneralSettingsSchema = Yup.object().shape({
     discordId: Yup.string()
@@ -107,11 +105,11 @@ const UserGeneralSettings = () => {
     );
   }, [data]);
 
-  if (!data && !error && !calibreWebData) {
+  if (!data && !error) {
     return <LoadingSpinner />;
   }
 
-  if (!data || !calibreWebData) {
+  if (!data) {
     return <Error statusCode={500} />;
   }
 
@@ -181,10 +179,25 @@ const UserGeneralSettings = () => {
               appearance: 'success',
             });
           } catch (e) {
-            addToast(intl.formatMessage(messages.toastSettingsFailure), {
-              autoDismiss: true,
-              appearance: 'error',
-            });
+            if (
+              e.response?.status === 400 &&
+              e.response.data?.message.includes('Calibre Web API key')
+            ) {
+              addToast(
+                intl.formatMessage(
+                  messages.toastSettingsCalibreWebAPIKeyFailure
+                ),
+                {
+                  autoDismiss: true,
+                  appearance: 'error',
+                }
+              );
+            } else {
+              addToast(intl.formatMessage(messages.toastSettingsFailure), {
+                autoDismiss: true,
+                appearance: 'error',
+              });
+            }
           } finally {
             revalidate();
             revalidateUser();
@@ -285,83 +298,85 @@ const UserGeneralSettings = () => {
                     )}
                 </div>
               </div>
-              <div className="form-row">
-                <label htmlFor="calibreAPIKey" className="text-label">
-                  {intl.formatMessage(messages.calibreAPIKey)}
-                  {currentUser?.id === user?.id && (
-                    <span className="label-tip">
-                      {intl.formatMessage(messages.calibreAPIKeyTip, {
-                        CalibreWebProfileLink: (msg: React.ReactNode) => (
-                          <a
-                            href={`${
-                              calibreWebData.useSsl ? 'https' : 'http'
-                            }://${calibreWebData.hostname}:${
-                              calibreWebData.port
-                            }${calibreWebData.urlBase ?? ''}/me`}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {msg}
-                          </a>
-                        ),
-                      })}
-                    </span>
-                  )}
-                </label>
-                <div className="form-input-area">
-                  <div className="form-input-field">
-                    <SensitiveInput
-                      as="field"
-                      id="calibreAPIKey"
-                      name="calibreAPIKey"
-                      autoComplete="one-time-code"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setFieldValue('calibreAPIKey', e.target.value);
-                      }}
-                    />
-                  </div>
-                  {errors.calibreAPIKey &&
-                    touched.calibreAPIKey &&
-                    typeof errors.calibreAPIKey === 'string' && (
-                      <div className="error">{errors.calibreAPIKey}</div>
+              {currentSettings.calibreWebUrl && (
+                <div className="form-row">
+                  <label htmlFor="calibreAPIKey" className="text-label">
+                    {intl.formatMessage(messages.calibreAPIKey)}
+                    {currentUser?.id === user?.id && (
+                      <span className="label-tip">
+                        {intl.formatMessage(messages.calibreAPIKeyTip, {
+                          CalibreWebProfileLink: (msg: React.ReactNode) => (
+                            <a
+                              href={`${currentSettings.calibreWebUrl}/me`}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {msg}
+                            </a>
+                          ),
+                        })}
+                      </span>
                     )}
-                </div>
-              </div>
-              <div className="form-row">
-                <label
-                  htmlFor="autoSendAvailableRequestedBooks"
-                  className="text-label"
-                >
-                  <span>
-                    {intl.formatMessage(
-                      messages.autoSendAvailableRequestedBooks
-                    )}
-                  </span>
-                  <span className="label-tip">
-                    {intl.formatMessage(
-                      messages.autoSendAvailableRequestedBooksTip
-                    )}
-                  </span>
-                </label>
-                <div className="form-input-area">
-                  <div className="flex flex-col">
-                    <div className="mb-4 flex items-center">
-                      <input
-                        id="autoSendAvailableRequestedBooks"
-                        name="autoSendAvailableRequestedBooks"
-                        type="checkbox"
-                        checked={values.autoSendAvailableRequestedBooks}
-                        onChange={() => {
-                          setFieldValue(
-                            'autoSendAvailableRequestedBooks',
-                            !values.autoSendAvailableRequestedBooks
-                          );
+                  </label>
+                  <div className="form-input-area">
+                    <div className="form-input-field">
+                      <SensitiveInput
+                        as="field"
+                        id="calibreAPIKey"
+                        name="calibreAPIKey"
+                        autoComplete="one-time-code"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setFieldValue('calibreAPIKey', e.target.value);
                         }}
+                        disabled={!currentSettings.calibreWebUrl}
                       />
+                    </div>
+                    {errors.calibreAPIKey &&
+                      touched.calibreAPIKey &&
+                      typeof errors.calibreAPIKey === 'string' && (
+                        <div className="error">{errors.calibreAPIKey}</div>
+                      )}
+                  </div>
+                </div>
+              )}
+              {currentSettings.calibreWebUrl && (
+                <div className="form-row">
+                  <label
+                    htmlFor="autoSendAvailableRequestedBooks"
+                    className="text-label"
+                  >
+                    <span>
+                      {intl.formatMessage(
+                        messages.autoSendAvailableRequestedBooks
+                      )}
+                    </span>
+                    <span className="label-tip">
+                      {intl.formatMessage(
+                        messages.autoSendAvailableRequestedBooksTip
+                      )}
+                    </span>
+                  </label>
+                  <div className="form-input-area">
+                    <div className="flex flex-col">
+                      <div className="mb-4 flex items-center">
+                        <input
+                          id="autoSendAvailableRequestedBooks"
+                          name="autoSendAvailableRequestedBooks"
+                          type="checkbox"
+                          checked={values.autoSendAvailableRequestedBooks}
+                          onChange={() => {
+                            setFieldValue(
+                              'autoSendAvailableRequestedBooks',
+                              !values.autoSendAvailableRequestedBooks
+                            );
+                          }}
+                          disabled={!values.calibreAPIKey}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
               <div className="form-row">
                 <label htmlFor="locale" className="text-label">
                   {intl.formatMessage(messages.applanguage)}

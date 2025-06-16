@@ -149,6 +149,7 @@ interface FullPublicSettings extends PublicSettings {
   locale: string;
   emailEnabled: boolean;
   newPlexLogin: boolean;
+  calibreWebUrl?: string;
 }
 
 export interface NotificationAgentConfig {
@@ -571,6 +572,13 @@ class Settings {
   }
 
   get fullPublicSettings(): FullPublicSettings {
+    let calibreWebUrl: string | undefined;
+    if (this.data.calibreWeb.hostname && this.data.calibreWeb.port) {
+      calibreWebUrl = `${this.data.calibreWeb.useSsl ? 'https' : 'http'}://${
+        this.data.calibreWeb.hostname
+      }:${this.data.calibreWeb.port}${this.data.calibreWeb.urlBase ?? ''}`;
+    }
+
     return {
       ...this.data.public,
       applicationTitle: this.data.main.applicationTitle,
@@ -592,6 +600,7 @@ class Settings {
       locale: this.data.main.locale,
       emailEnabled: this.data.notifications.agents.email.enabled,
       newPlexLogin: this.data.main.newPlexLogin,
+      calibreWebUrl: calibreWebUrl,
     };
   }
 

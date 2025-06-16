@@ -105,6 +105,29 @@ class CalibreWebAPI extends ExternalAPI {
     });
   }
 
+  public testAPIKey = async (apiKey: string): Promise<boolean> => {
+    try {
+      // TODO: change to a more appropriate endpoint when available
+      const response = await this.axios.get('/me', {
+        headers: {
+          'X-API-KEY': apiKey,
+        },
+      });
+
+      // Check if the response URL contains 'login' to determine if the API key is invalid
+      if (response.request.res.responseUrl.includes('login')) {
+        return false; // If the response URL contains 'login', the API key is invalid
+      }
+
+      return response.status === 200;
+    } catch (e) {
+      if (e.response && e.response.status === 401) {
+        return false; // Unauthorized, API key is invalid
+      }
+      throw new Error(`[Calibre Web] Failed to test API key: ${e.message}`);
+    }
+  };
+
   public sendToEReader = async ({
     userAPIKey,
     bookId,

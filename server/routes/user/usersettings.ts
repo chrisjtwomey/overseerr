@@ -1,3 +1,4 @@
+import CalibreWebAPI from '@server/api/calibre';
 import { getRepository } from '@server/datasource';
 import { User } from '@server/entity/User';
 import { UserSettings } from '@server/entity/UserSettings';
@@ -135,6 +136,23 @@ userSettingsRoutes.post<
       user.settings.originalLanguage = req.body.originalLanguage;
       user.settings.watchlistSyncMovies = req.body.watchlistSyncMovies;
       user.settings.watchlistSyncTv = req.body.watchlistSyncTv;
+    }
+
+    if (user.settings.calibreAPIKey && user.settings.calibreAPIKey.length > 0) {
+      const settings = getSettings();
+      const calibreClient = new CalibreWebAPI({
+        url: CalibreWebAPI.buildUrl(settings.calibreWeb),
+        apiKey: settings.calibreWeb.apiKey || '',
+        cacheName: 'calibreWeb',
+        apiName: 'calibreWeb',
+      });
+
+      if (!(await calibreClient.testAPIKey(user.settings.calibreAPIKey))) {
+        return next({
+          status: 400,
+          message: 'Invalid Calibre Web API key provided.',
+        });
+      }
     }
 
     await userRepository.save(user);
