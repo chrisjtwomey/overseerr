@@ -98,7 +98,6 @@ class ExternalGraphQLAPI {
     this.client = new ApolloClient<NormalizedCacheObject>({
       cache: globalCache.cache,
       link: new ApolloLink((operation, forward) => {
-        // Log the operation for debugging purposes
         logger.debug(`GraphQL Operation: ${operation.operationName}`, {
           variables: operation.variables,
           operationName: operation.operationName,
@@ -108,26 +107,49 @@ class ExternalGraphQLAPI {
           globalCache.incrMissCount();
           return result;
         });
-      }).concat(
-        new RetryLink({
-          delay: {
-            initial: 1000,
-            max: Infinity,
-            jitter: true,
-          },
-          attempts: {
-            max: 5,
-            retryIf: (error) => !!error,
-          },
-        }).concat(
+      })
+        .concat(
+          new RetryLink({
+            delay: (count, _, error) => {
+              if (error && error.response && error.response.status === 429) {
+                const retryAfterTimestamp =
+                  error.response.headers.get('ratelimit-reset');
+                if (retryAfterTimestamp) {
+                  const retryAfter = parseInt(retryAfterTimestamp, 10);
+                  if (!isNaN(retryAfter)) {
+                    const delay = retryAfter * 1000 - Date.now();
+                    logger.debug(
+                      `GraphQL: rate limit exceeded, retrying after ${
+                        delay / 1000
+                      } seconds...`
+                    );
+
+                    return Math.max(delay, 0);
+                  }
+                }
+
+                return Math.min(1000 * count, 30000);
+              }
+
+              // Default delay with some jitter
+              return (
+                Math.min(1000 * count, 30000) + Math.floor(Math.random() * 1000)
+              );
+            },
+            attempts: {
+              max: 3,
+              retryIf: (error) => !!error,
+            },
+          })
+        )
+        .concat(
           createHttpLink({
             uri: baseUrl,
             headers: {
               Authorization: params.token as string,
             },
           })
-        )
-      ),
+        ),
       defaultOptions: {
         query: {
           fetchPolicy: cachePolicy as FetchPolicy,
