@@ -1,5 +1,6 @@
 import type { SortOptions as BookSortOptions } from '@server/api/hardcover';
 import Hardcover from '@server/api/hardcover';
+import type { HardcoverBook } from '@server/api/hardcover/interfaces';
 import PlexTvAPI from '@server/api/plextv';
 import type { SortOptions } from '@server/api/themoviedb';
 import TheMovieDb from '@server/api/themoviedb';
@@ -956,7 +957,7 @@ discoverRoutes.get('/books', async (req, res, next) => {
       keywords: [],
       results: data.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (med) =>
               med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
@@ -996,7 +997,7 @@ discoverRoutes.get('/books/trending', async (req, res, next) => {
       keywords: [],
       results: data.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (med) =>
               med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
@@ -1037,7 +1038,7 @@ discoverRoutes.get('/books/popular', async (req, res, next) => {
       keywords: [],
       results: data.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (med) =>
               med.hardcoverId === result.id && med.mediaType === MediaType.BOOK
@@ -1085,7 +1086,7 @@ discoverRoutes.get('/books/upcoming', async (req, res, next) => {
       keywords: [],
       results: data.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (med) =>
               med.hardcoverId === result.id && med.mediaType === MediaType.BOOK

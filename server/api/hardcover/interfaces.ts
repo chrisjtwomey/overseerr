@@ -109,27 +109,8 @@ export interface HardcoverTag {
 }
 
 export interface HardcoverPaginatedResponse {
+  results: (HardcoverBook | HardcoverAuthor | HardcoverBookSeries)[];
   page: number;
   total_results: number;
   total_pages: number;
-}
-
-export interface HardcoverSearchBookResponse
-  extends HardcoverPaginatedResponse {
-  results: HardcoverBook[];
-}
-
-export interface HardcoverSearchAuthorResponse
-  extends HardcoverPaginatedResponse {
-  results: HardcoverAuthor[];
-}
-
-export interface HardcoverSearchMultiResponse
-  extends HardcoverPaginatedResponse {
-  results: (HardcoverBook | HardcoverAuthor)[];
-}
-
-export interface HardcoverSearchBookSeriesResponse
-  extends HardcoverPaginatedResponse {
-  results: HardcoverBookSeries[];
 }

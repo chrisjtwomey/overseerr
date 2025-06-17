@@ -23,6 +23,8 @@ import type {
   GetBooksBySeriesIdQueryVariables,
   GetBooksQuery,
   GetBooksQueryVariables,
+  GetEditionsByBookIdQuery,
+  GetEditionsByBookIdQueryVariables,
   GetMeQuery,
   GetMeQueryVariables,
   GetTagsByCategoryQuery,
@@ -34,7 +36,6 @@ import type {
   PublisherFragment,
   SearchQuery,
   SearchQueryVariables,
-  SeriesFragment,
   TagFragment,
 } from '@server/api/hardcover/graphql/graphql';
 import {
@@ -48,6 +49,7 @@ import {
   GetBooksByIDsDocument,
   GetBooksBySeriesIdDocument,
   GetBooksDocument,
+  GetEditionsByBookIdDocument,
   GetMeDocument,
   GetTagsByCategoryDocument,
   GetTrendingBookIDsDocument,
@@ -58,10 +60,8 @@ import type {
   HardcoverBook,
   HardcoverEdition,
   HardcoverLanguage,
+  HardcoverPaginatedResponse,
   HardcoverPublisher,
-  HardcoverSearchAuthorResponse,
-  HardcoverSearchBookResponse,
-  HardcoverSearchMultiResponse,
   HardcoverTag,
 } from './interfaces';
 
@@ -151,7 +151,8 @@ class Hardcover extends ExternalGraphQLAPI {
       });
 
       const bookData = booksData.books_by_pk as BookFragment;
-      const book = this.mapBookFragment(bookData);
+      const book = await this.mapBookFragment(bookData, language);
+
       return book;
     } catch (e) {
       throw new Error(
@@ -183,7 +184,8 @@ class Hardcover extends ExternalGraphQLAPI {
       }
 
       const bookFragment = bookData.editions_by_pk?.book as BookFragment;
-      const book = this.mapBookFragment(bookFragment);
+      const book = await this.mapBookFragment(bookFragment, language);
+
       return book;
     } catch (e) {
       throw new Error(
@@ -205,7 +207,6 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBookByIdentifierQueryVariables
       >(GetBookByIdentifierDocument, {
         identifier,
-        language,
       });
 
       if (booksData.books.length === 0) {
@@ -214,7 +215,8 @@ class Hardcover extends ExternalGraphQLAPI {
         );
       }
       const bookData = booksData.books[0] as BookFragment;
-      const book = this.mapBookFragment(bookData);
+      const book = await this.mapBookFragment(bookData, language);
+
       return book;
     } catch (e) {
       throw new Error(
@@ -231,7 +233,7 @@ class Hardcover extends ExternalGraphQLAPI {
     seriesId: number;
     language?: string;
     page: number;
-  }): Promise<HardcoverSearchBookResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
 
@@ -241,7 +243,6 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBooksBySeriesIdQueryVariables
       >(GetBooksBySeriesIdDocument, {
         seriesId,
-        language,
         offset,
         limit,
       });
@@ -255,14 +256,12 @@ class Hardcover extends ExternalGraphQLAPI {
         };
       }
 
-      const books = (seriesData.series_by_pk as SeriesFragment).book_series
-        .filter(
-          (bookData) => (bookData.book as BookFragment).editions.length > 0
+      const books = await Promise.all(
+        (seriesData.series_by_pk?.book_series ?? []).map(
+          async (bookData) =>
+            await this.mapBookFragment(bookData.book as BookFragment, language)
         )
-        .map(
-          (bookData) =>
-            this.mapBookFragment(bookData.book as BookFragment) as HardcoverBook
-        );
+      );
 
       return {
         results: books,
@@ -285,7 +284,7 @@ class Hardcover extends ExternalGraphQLAPI {
     bookId: number;
     language?: string;
     page: number;
-  }): Promise<HardcoverSearchBookResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
     const total_pages = 10;
@@ -297,23 +296,19 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBookRecommendationsQueryVariables
       >(GetBookRecommendationsDocument, {
         bookId,
-        language,
         limit,
         offset,
       });
 
-      const books = booksData.recommendations
-        .filter(
-          (bookData) =>
-            bookData.item_book !== null &&
-            (bookData.item_book as BookFragment).editions.length > 0
+      const books = await Promise.all(
+        booksData.recommendations.map(
+          async (bookData) =>
+            await this.mapBookFragment(
+              bookData.item_book as BookFragment,
+              language
+            )
         )
-        .map(
-          (bookData) =>
-            this.mapBookFragment(
-              bookData.item_book as BookFragment
-            ) as HardcoverBook
-        );
+      );
 
       return {
         results: books,
@@ -346,7 +341,7 @@ class Hardcover extends ExternalGraphQLAPI {
     to?: string;
     language?: string;
     page?: number;
-  }): Promise<HardcoverSearchBookResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     const limit = Hardcover.PageSize;
     const offset = (page - 1) * limit;
     const total_pages = 3;
@@ -376,17 +371,17 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBooksByIDsQueryVariables
       >(GetBooksByIDsDocument, getBooksByIDsQueryVariables);
 
-      const books = trendingBooksData.books
-        .filter((bookData) => (bookData as BookFragment).editions.length > 0)
-        .map(
-          (bookData) =>
-            this.mapBookFragment(bookData as BookFragment) as HardcoverBook
+      const books = await (
+        await Promise.all(
+          trendingBooksData.books.map(
+            async (bookData) =>
+              await this.mapBookFragment(bookData as BookFragment, language)
+          )
         )
-        .sort(
-          // sort books by the IDs of the trendingBooksData - ideal if I could do this in the GraphQL query
-          (a, b) =>
-            trendingBookIDs.indexOf(a.id) - trendingBookIDs.indexOf(b.id)
-        );
+      ).sort(
+        // sort books by the IDs of the trendingBooksData - ideal if I could do this in the GraphQL query
+        (a, b) => trendingBookIDs.indexOf(a.id) - trendingBookIDs.indexOf(b.id)
+      );
 
       return {
         results: books,
@@ -409,7 +404,7 @@ class Hardcover extends ExternalGraphQLAPI {
     searchTerm: string;
     language?: string;
     page: number;
-  }): Promise<HardcoverSearchBookResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     const limit = Hardcover.PageSize;
     try {
       const searchData = await this.get<SearchQuery, SearchQueryVariables>(
@@ -443,19 +438,18 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBooksByIDsQueryVariables
       >(GetBooksByIDsDocument, {
         bookIds,
-        language,
         orderBy: {
           users_count: 'desc' as Order_By,
           rating: 'desc' as Order_By,
         },
       });
 
-      const books = booksData.books
-        .filter((bookData) => (bookData as BookFragment).editions.length > 0)
-        .map(
-          (bookData) =>
-            this.mapBookFragment(bookData as BookFragment) as HardcoverBook
-        );
+      const books = await Promise.all(
+        booksData.books.map(
+          async (bookData) =>
+            await this.mapBookFragment(bookData as BookFragment, language)
+        )
+      );
 
       return {
         results: books,
@@ -476,7 +470,7 @@ class Hardcover extends ExternalGraphQLAPI {
   }: {
     searchTerm: string;
     page: number;
-  }): Promise<HardcoverSearchAuthorResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     const limit = Hardcover.PageSize;
     try {
       const searchData = await this.get<SearchQuery, SearchQueryVariables>(
@@ -541,7 +535,7 @@ class Hardcover extends ExternalGraphQLAPI {
     searchTerm: string;
     language?: string;
     page: number;
-  }): Promise<HardcoverSearchMultiResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     try {
       const booksData = await this.searchBooks({
         searchTerm,
@@ -603,7 +597,7 @@ class Hardcover extends ExternalGraphQLAPI {
     authorId: number;
     language?: string;
     page?: number;
-  }): Promise<HardcoverSearchBookResponse> => {
+  }): Promise<HardcoverPaginatedResponse> => {
     if (page === undefined || isNaN(page)) {
       page = 1;
     }
@@ -617,17 +611,16 @@ class Hardcover extends ExternalGraphQLAPI {
         GetBooksByAuthorIdQueryVariables
       >(GetBooksByAuthorIdDocument, {
         authorId,
-        language,
         limit,
         offset,
       });
 
-      const books = booksData.books
-        .filter((bookData) => (bookData as BookFragment).editions.length > 0)
-        .map(
-          (bookData) =>
-            this.mapBookFragment(bookData as BookFragment) as HardcoverBook
-        );
+      const books = await Promise.all(
+        booksData.books.map(
+          async (bookData) =>
+            await this.mapBookFragment(bookData as BookFragment, language)
+        )
+      );
 
       return {
         results: books,
@@ -658,7 +651,7 @@ class Hardcover extends ExternalGraphQLAPI {
     voteAverageLte,
     voteCountGte,
     voteCountLte,
-  }: DiscoverBookOptions = {}): Promise<HardcoverSearchBookResponse> => {
+  }: DiscoverBookOptions = {}): Promise<HardcoverPaginatedResponse> => {
     const defaultFutureDate = new Date().toISOString().split('T')[0];
     const defaultPastDate = new Date(Hardcover.DefaultPastDate)
       .toISOString()
@@ -709,7 +702,6 @@ class Hardcover extends ExternalGraphQLAPI {
             _lte: !releaseDateLte ? defaultFutureDate : releaseDateLte,
           },
         },
-        language,
         limit,
         offset,
         orderBy,
@@ -718,7 +710,7 @@ class Hardcover extends ExternalGraphQLAPI {
       if (originalLanguage !== undefined) {
         getBooksQueryVariables.where = {
           ...getBooksQueryVariables.where,
-          default_ebook_edition: {
+          default_physical_edition: {
             language: {
               code2: {
                 _eq: originalLanguage,
@@ -805,9 +797,11 @@ class Hardcover extends ExternalGraphQLAPI {
         getBooksQueryVariables
       );
 
-      const books = booksData.books.map(
-        (bookData) =>
-          this.mapBookFragment(bookData as BookFragment) as HardcoverBook
+      const books = await Promise.all(
+        booksData.books.map(
+          async (bookData) =>
+            await this.mapBookFragment(bookData as BookFragment, language)
+        )
       );
 
       return {
@@ -846,7 +840,10 @@ class Hardcover extends ExternalGraphQLAPI {
     }
   };
 
-  private mapBookFragment = (bookData: BookFragment): HardcoverBook => {
+  private mapBookFragment = async (
+    bookData: BookFragment,
+    language: string
+  ): Promise<HardcoverBook> => {
     const defaultEdition = bookData.default_physical_edition
       ? this.mapEditionFragment(
           bookData.default_physical_edition as EditionFragment
@@ -859,8 +856,17 @@ class Hardcover extends ExternalGraphQLAPI {
 
     let selectedEdition: HardcoverEdition | undefined;
 
-    if (bookData.editions.length > 0) {
-      selectedEdition = bookData.editions.map((editionData) =>
+    const editionsData = await this.get<
+      GetEditionsByBookIdQuery,
+      GetEditionsByBookIdQueryVariables
+    >(GetEditionsByBookIdDocument, {
+      bookId: bookData.id,
+      language: language || 'en',
+      limit: 3,
+    });
+
+    if (editionsData.editions.length > 0) {
+      selectedEdition = editionsData.editions.map((editionData) =>
         this.mapEditionFragment(editionData as EditionFragment)
       )[0];
     }
@@ -937,7 +943,7 @@ class Hardcover extends ExternalGraphQLAPI {
       // series_ids: bookData.book_series.map((series) => series.id),
     } as HardcoverBook;
 
-    for (const edition of bookData.editions) {
+    for (const edition of editionsData.editions) {
       if (edition.isbn_13) {
         book.identifiers.push(edition.isbn_13);
       }

@@ -1,4 +1,5 @@
 import Hardcover from '@server/api/hardcover';
+import type { HardcoverBook } from '@server/api/hardcover/interfaces';
 import { MediaType } from '@server/constants/media';
 import Media from '@server/entity/Media';
 import { getSettings } from '@server/lib/settings';
@@ -64,7 +65,7 @@ bookRoutes.get('/:editionId/similar', async (req, res, next) => {
       totalResults: hardcoverBooksData.total_results,
       results: hardcoverBooksData.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (req) =>
               req.hardcoverId === result.id && req.mediaType === MediaType.BOOK
@@ -120,7 +121,7 @@ bookRoutes.get('/:editionId/series', async (req, res, next) => {
       totalResults: hardcoverBooksData.total_results,
       results: hardcoverBooksData.results.map((result) =>
         mapBookResult(
-          result,
+          result as HardcoverBook,
           media.find(
             (req) =>
               req.hardcoverId === result.id && req.mediaType === MediaType.BOOK

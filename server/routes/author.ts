@@ -1,4 +1,5 @@
 import Hardcover from '@server/api/hardcover';
+import type { HardcoverBook } from '@server/api/hardcover/interfaces';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { mapAuthorDetails } from '@server/models/Author';
@@ -53,7 +54,7 @@ authorRoutes.get('/:authorId/books', async (req, res, next) => {
     // );
 
     const books = hardcoverBooksData.results.map((book) =>
-      mapBookDetails(book)
+      mapBookDetails(book as HardcoverBook)
     );
 
     return res.status(200).json({

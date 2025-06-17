@@ -67,7 +67,13 @@ searchRoutes.get('/', async (req, res, next) => {
           page: Number(req.query.page),
         });
 
-        results.results = results.results.concat(hardCoverResults.results);
+        results.results = results.results.concat(
+          hardCoverResults.results.filter(
+            (item): item is HardcoverBook | HardcoverAuthor =>
+              (item as HardcoverBook).media_type === 'book' ||
+              (item as HardcoverAuthor).media_type === 'author'
+          )
+        );
       }
     }
 

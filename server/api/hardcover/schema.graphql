@@ -71,16 +71,6 @@ fragment BookPartial on books {
   default_ebook_edition {
     ...Edition
   }
-  editions(
-    where: {
-      language: { code2: { _eq: $language } }
-      edition_format: { _nin: ["Audible.com", "Audiobook", "Audible Audio"] }
-    }
-    order_by: { users_count: desc }
-    limit: 3
-  ) {
-    ...Edition
-  }
   rating
 }
 
@@ -146,7 +136,7 @@ query GetBookByEditionID($editionId: Int!, $language: String!) {
   }
 }
 
-query GetBookByIdentifier($identifier: String!, $language: String!) {
+query GetBookByIdentifier($identifier: String!) {
   books(
     where: {
       _or: [
@@ -163,7 +153,6 @@ query GetBookByIdentifier($identifier: String!, $language: String!) {
 
 query GetBooks(
   $where: books_bool_exp
-  $language: String!
   $orderBy: [books_order_by!]!
   $limit: Int!
   $offset: Int!
@@ -178,24 +167,29 @@ query GetBooks(
   }
 }
 
-query GetBooksByIDs(
-  $bookIds: [Int!]!
-  $language: String!
-  $orderBy: [books_order_by!]
-) {
+query GetBooksByIDs($bookIds: [Int!]!, $orderBy: [books_order_by!]) {
   books(where: { id: { _in: $bookIds } }, order_by: $orderBy) {
     ...BookPartial
   }
 }
 
-query GetBooksBySeriesID(
-  $seriesId: Int!
-  $language: String!
-  $limit: Int!
-  $offset: Int!
-) {
+query GetBooksBySeriesID($seriesId: Int!, $limit: Int!, $offset: Int!) {
   series_by_pk(id: $seriesId) {
     ...Series
+  }
+}
+
+query GetEditionsByBookID($bookId: Int!, $language: String!, $limit: Int!) {
+  editions(
+    where: {
+      book_id: { _eq: $bookId }
+      language: { code2: { _eq: $language } }
+      edition_format: { _nin: ["Audible.com", "Audiobook", "Audible Audio"] }
+    }
+    order_by: { users_count: desc }
+    limit: $limit
+  ) {
+    ...Edition
   }
 }
 
@@ -211,12 +205,7 @@ query GetAuthorByIDS($authorIds: [Int!]!) {
   }
 }
 
-query GetBooksByAuthorID(
-  $authorId: Int!
-  $language: String!
-  $limit: Int!
-  $offset: Int!
-) {
+query GetBooksByAuthorID($authorId: Int!, $limit: Int!, $offset: Int!) {
   books(
     where: { contributions: { author_id: { _eq: $authorId } } }
     order_by: { users_count: desc }
@@ -244,12 +233,7 @@ query GetTrendingBookIDs(
   }
 }
 
-query GetBookRecommendations(
-  $bookId: bigint!
-  $language: String!
-  $limit: Int
-  $offset: Int
-) {
+query GetBookRecommendations($bookId: bigint!, $limit: Int, $offset: Int) {
   recommendations(
     limit: $limit
     offset: $offset

@@ -19398,29 +19398,6 @@ export type BookPartialFragment = {
       code2?: string | null;
     } | null;
   } | null;
-  editions: Array<{
-    __typename: 'editions';
-    id: number;
-    isbn_13?: string | null;
-    isbn_10?: string | null;
-    asin?: string | null;
-    title?: string | null;
-    description?: string | null;
-    identifiers?: any | null;
-    pages?: number | null;
-    release_date?: any | null;
-    edition_format?: string | null;
-    publisher?: {
-      __typename: 'publishers';
-      id: any;
-      name?: string | null;
-    } | null;
-    language?: {
-      __typename: 'languages';
-      language: string;
-      code2?: string | null;
-    } | null;
-  }>;
 };
 
 export type BookFragment = {
@@ -19482,29 +19459,6 @@ export type BookFragment = {
       code2?: string | null;
     } | null;
   } | null;
-  editions: Array<{
-    __typename: 'editions';
-    id: number;
-    isbn_13?: string | null;
-    isbn_10?: string | null;
-    asin?: string | null;
-    title?: string | null;
-    description?: string | null;
-    identifiers?: any | null;
-    pages?: number | null;
-    release_date?: any | null;
-    edition_format?: string | null;
-    publisher?: {
-      __typename: 'publishers';
-      id: any;
-      name?: string | null;
-    } | null;
-    language?: {
-      __typename: 'languages';
-      language: string;
-      code2?: string | null;
-    } | null;
-  }>;
 };
 
 export type SeriesFragment = {
@@ -19567,29 +19521,6 @@ export type SeriesFragment = {
           code2?: string | null;
         } | null;
       } | null;
-      editions: Array<{
-        __typename: 'editions';
-        id: number;
-        isbn_13?: string | null;
-        isbn_10?: string | null;
-        asin?: string | null;
-        title?: string | null;
-        description?: string | null;
-        identifiers?: any | null;
-        pages?: number | null;
-        release_date?: any | null;
-        edition_format?: string | null;
-        publisher?: {
-          __typename: 'publishers';
-          id: any;
-          name?: string | null;
-        } | null;
-        language?: {
-          __typename: 'languages';
-          language: string;
-          code2?: string | null;
-        } | null;
-      }>;
     } | null;
   }>;
 };
@@ -19667,29 +19598,6 @@ export type GetBookByIdQuery = {
         code2?: string | null;
       } | null;
     } | null;
-    editions: Array<{
-      __typename: 'editions';
-      id: number;
-      isbn_13?: string | null;
-      isbn_10?: string | null;
-      asin?: string | null;
-      title?: string | null;
-      description?: string | null;
-      identifiers?: any | null;
-      pages?: number | null;
-      release_date?: any | null;
-      edition_format?: string | null;
-      publisher?: {
-        __typename: 'publishers';
-        id: any;
-        name?: string | null;
-      } | null;
-      language?: {
-        __typename: 'languages';
-        language: string;
-        code2?: string | null;
-      } | null;
-    }>;
   } | null;
 };
 
@@ -19771,29 +19679,6 @@ export type GetBookByEditionIdQuery = {
           code2?: string | null;
         } | null;
       } | null;
-      editions: Array<{
-        __typename: 'editions';
-        id: number;
-        isbn_13?: string | null;
-        isbn_10?: string | null;
-        asin?: string | null;
-        title?: string | null;
-        description?: string | null;
-        identifiers?: any | null;
-        pages?: number | null;
-        release_date?: any | null;
-        edition_format?: string | null;
-        publisher?: {
-          __typename: 'publishers';
-          id: any;
-          name?: string | null;
-        } | null;
-        language?: {
-          __typename: 'languages';
-          language: string;
-          code2?: string | null;
-        } | null;
-      }>;
     };
     publisher?: {
       __typename: 'publishers';
@@ -19810,7 +19695,6 @@ export type GetBookByEditionIdQuery = {
 
 export type GetBookByIdentifierQueryVariables = Exact<{
   identifier: Scalars['String']['input'];
-  language: Scalars['String']['input'];
 }>;
 
 export type GetBookByIdentifierQuery = {
@@ -19874,35 +19758,11 @@ export type GetBookByIdentifierQuery = {
         code2?: string | null;
       } | null;
     } | null;
-    editions: Array<{
-      __typename: 'editions';
-      id: number;
-      isbn_13?: string | null;
-      isbn_10?: string | null;
-      asin?: string | null;
-      title?: string | null;
-      description?: string | null;
-      identifiers?: any | null;
-      pages?: number | null;
-      release_date?: any | null;
-      edition_format?: string | null;
-      publisher?: {
-        __typename: 'publishers';
-        id: any;
-        name?: string | null;
-      } | null;
-      language?: {
-        __typename: 'languages';
-        language: string;
-        code2?: string | null;
-      } | null;
-    }>;
   }>;
 };
 
 export type GetBooksQueryVariables = Exact<{
   where?: InputMaybe<Books_Bool_Exp>;
-  language: Scalars['String']['input'];
   orderBy: Array<Books_Order_By> | Books_Order_By;
   limit: Scalars['Int']['input'];
   offset: Scalars['Int']['input'];
@@ -19962,29 +19822,6 @@ export type GetBooksQuery = {
         code2?: string | null;
       } | null;
     } | null;
-    editions: Array<{
-      __typename: 'editions';
-      id: number;
-      isbn_13?: string | null;
-      isbn_10?: string | null;
-      asin?: string | null;
-      title?: string | null;
-      description?: string | null;
-      identifiers?: any | null;
-      pages?: number | null;
-      release_date?: any | null;
-      edition_format?: string | null;
-      publisher?: {
-        __typename: 'publishers';
-        id: any;
-        name?: string | null;
-      } | null;
-      language?: {
-        __typename: 'languages';
-        language: string;
-        code2?: string | null;
-      } | null;
-    }>;
   }>;
   books_aggregate: {
     __typename?: 'books_aggregate';
@@ -19994,7 +19831,6 @@ export type GetBooksQuery = {
 
 export type GetBooksByIDsQueryVariables = Exact<{
   bookIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
-  language: Scalars['String']['input'];
   orderBy?: InputMaybe<Array<Books_Order_By> | Books_Order_By>;
 }>;
 
@@ -20052,35 +19888,11 @@ export type GetBooksByIDsQuery = {
         code2?: string | null;
       } | null;
     } | null;
-    editions: Array<{
-      __typename: 'editions';
-      id: number;
-      isbn_13?: string | null;
-      isbn_10?: string | null;
-      asin?: string | null;
-      title?: string | null;
-      description?: string | null;
-      identifiers?: any | null;
-      pages?: number | null;
-      release_date?: any | null;
-      edition_format?: string | null;
-      publisher?: {
-        __typename: 'publishers';
-        id: any;
-        name?: string | null;
-      } | null;
-      language?: {
-        __typename: 'languages';
-        language: string;
-        code2?: string | null;
-      } | null;
-    }>;
   }>;
 };
 
 export type GetBooksBySeriesIdQueryVariables = Exact<{
   seriesId: Scalars['Int']['input'];
-  language: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
   offset: Scalars['Int']['input'];
 }>;
@@ -20147,32 +19959,42 @@ export type GetBooksBySeriesIdQuery = {
             code2?: string | null;
           } | null;
         } | null;
-        editions: Array<{
-          __typename: 'editions';
-          id: number;
-          isbn_13?: string | null;
-          isbn_10?: string | null;
-          asin?: string | null;
-          title?: string | null;
-          description?: string | null;
-          identifiers?: any | null;
-          pages?: number | null;
-          release_date?: any | null;
-          edition_format?: string | null;
-          publisher?: {
-            __typename: 'publishers';
-            id: any;
-            name?: string | null;
-          } | null;
-          language?: {
-            __typename: 'languages';
-            language: string;
-            code2?: string | null;
-          } | null;
-        }>;
       } | null;
     }>;
   } | null;
+};
+
+export type GetEditionsByBookIdQueryVariables = Exact<{
+  bookId: Scalars['Int']['input'];
+  language: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+export type GetEditionsByBookIdQuery = {
+  __typename?: 'query_root';
+  editions: Array<{
+    __typename: 'editions';
+    id: number;
+    isbn_13?: string | null;
+    isbn_10?: string | null;
+    asin?: string | null;
+    title?: string | null;
+    description?: string | null;
+    identifiers?: any | null;
+    pages?: number | null;
+    release_date?: any | null;
+    edition_format?: string | null;
+    publisher?: {
+      __typename: 'publishers';
+      id: any;
+      name?: string | null;
+    } | null;
+    language?: {
+      __typename: 'languages';
+      language: string;
+      code2?: string | null;
+    } | null;
+  }>;
 };
 
 export type GetAuthorByIdQueryVariables = Exact<{
@@ -20219,7 +20041,6 @@ export type GetAuthorByIdsQuery = {
 
 export type GetBooksByAuthorIdQueryVariables = Exact<{
   authorId: Scalars['Int']['input'];
-  language: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
   offset: Scalars['Int']['input'];
 }>;
@@ -20278,29 +20099,6 @@ export type GetBooksByAuthorIdQuery = {
         code2?: string | null;
       } | null;
     } | null;
-    editions: Array<{
-      __typename: 'editions';
-      id: number;
-      isbn_13?: string | null;
-      isbn_10?: string | null;
-      asin?: string | null;
-      title?: string | null;
-      description?: string | null;
-      identifiers?: any | null;
-      pages?: number | null;
-      release_date?: any | null;
-      edition_format?: string | null;
-      publisher?: {
-        __typename: 'publishers';
-        id: any;
-        name?: string | null;
-      } | null;
-      language?: {
-        __typename: 'languages';
-        language: string;
-        code2?: string | null;
-      } | null;
-    }>;
   }>;
   books_aggregate: {
     __typename?: 'books_aggregate';
@@ -20325,7 +20123,6 @@ export type GetTrendingBookIDsQuery = {
 
 export type GetBookRecommendationsQueryVariables = Exact<{
   bookId: Scalars['bigint']['input'];
-  language: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
 }>;
@@ -20386,29 +20183,6 @@ export type GetBookRecommendationsQuery = {
           code2?: string | null;
         } | null;
       } | null;
-      editions: Array<{
-        __typename: 'editions';
-        id: number;
-        isbn_13?: string | null;
-        isbn_10?: string | null;
-        asin?: string | null;
-        title?: string | null;
-        description?: string | null;
-        identifiers?: any | null;
-        pages?: number | null;
-        release_date?: any | null;
-        edition_format?: string | null;
-        publisher?: {
-          __typename: 'publishers';
-          id: any;
-          name?: string | null;
-        } | null;
-        language?: {
-          __typename: 'languages';
-          language: string;
-          code2?: string | null;
-        } | null;
-      }>;
     } | null;
   }>;
 };
@@ -20686,108 +20460,6 @@ export const BookPartialFragmentDoc = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -21023,108 +20695,6 @@ export const BookFragmentDoc = {
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'default_ebook_edition' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -21390,108 +20960,6 @@ export const SeriesFragmentDoc = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -21698,108 +21166,6 @@ export const GetBookByIdDocument = {
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'default_ebook_edition' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -22046,108 +21412,6 @@ export const GetBookByEditionIdDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -22202,20 +21466,6 @@ export const GetBookByIdentifierDocument = {
           variable: {
             kind: 'Variable',
             name: { kind: 'Name', value: 'identifier' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
           },
           type: {
             kind: 'NonNullType',
@@ -22503,108 +21753,6 @@ export const GetBookByIdentifierDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -22663,20 +21811,6 @@ export const GetBooksDocument = {
           type: {
             kind: 'NamedType',
             name: { kind: 'Name', value: 'books_bool_exp' },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
           },
         },
         {
@@ -22916,108 +22050,6 @@ export const GetBooksDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -23049,20 +22081,6 @@ export const GetBooksByIDsDocument = {
                   name: { kind: 'Name', value: 'Int' },
                 },
               },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
             },
           },
         },
@@ -23261,108 +22279,6 @@ export const GetBooksByIDsDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -23386,20 +22302,6 @@ export const GetBooksBySeriesIdDocument = {
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
           },
         },
         {
@@ -23576,108 +22478,6 @@ export const GetBooksBySeriesIdDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -23810,6 +22610,266 @@ export const GetBooksBySeriesIdDocument = {
 } as unknown as DocumentNode<
   GetBooksBySeriesIdQuery,
   GetBooksBySeriesIdQueryVariables
+>;
+export const GetEditionsByBookIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEditionsByBookID' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'bookId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'language' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'editions' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'book_id' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'bookId' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'language' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'code2' },
+                            value: {
+                              kind: 'ObjectValue',
+                              fields: [
+                                {
+                                  kind: 'ObjectField',
+                                  name: { kind: 'Name', value: '_eq' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'language' },
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'edition_format' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: '_nin' },
+                            value: {
+                              kind: 'ListValue',
+                              values: [
+                                {
+                                  kind: 'StringValue',
+                                  value: 'Audible.com',
+                                  block: false,
+                                },
+                                {
+                                  kind: 'StringValue',
+                                  value: 'Audiobook',
+                                  block: false,
+                                },
+                                {
+                                  kind: 'StringValue',
+                                  value: 'Audible Audio',
+                                  block: false,
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order_by' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'users_count' },
+                      value: { kind: 'EnumValue', value: 'desc' },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'Edition' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'Publisher' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'publishers' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'Language' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'languages' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'code2' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'Edition' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'editions' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isbn_13' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isbn_10' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'asin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'identifiers' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'pages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'publisher' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'Publisher' },
+                },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'language' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'Language' },
+                },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'release_date' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'edition_format' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetEditionsByBookIdQuery,
+  GetEditionsByBookIdQueryVariables
 >;
 export const GetAuthorByIdDocument = {
   kind: 'Document',
@@ -24003,20 +23063,6 @@ export const GetBooksByAuthorIdDocument = {
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
           },
         },
         {
@@ -24306,108 +23352,6 @@ export const GetBooksByAuthorIdDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
           { kind: 'Field', name: { kind: 'Name', value: 'rating' } },
         ],
       },
@@ -24539,20 +23483,6 @@ export const GetBookRecommendationsDocument = {
             type: {
               kind: 'NamedType',
               name: { kind: 'Name', value: 'bigint' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'language' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
             },
           },
         },
@@ -24827,108 +23757,6 @@ export const GetBookRecommendationsDocument = {
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'default_ebook_edition' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'Edition' },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'editions' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'where' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'language' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'code2' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: '_eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'language' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'edition_format' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: '_nin' },
-                            value: {
-                              kind: 'ListValue',
-                              values: [
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible.com',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audiobook',
-                                  block: false,
-                                },
-                                {
-                                  kind: 'StringValue',
-                                  value: 'Audible Audio',
-                                  block: false,
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'order_by' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'users_count' },
-                      value: { kind: 'EnumValue', value: 'desc' },
-                    },
-                  ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'limit' },
-                value: { kind: 'IntValue', value: '3' },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
